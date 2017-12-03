@@ -101,3 +101,8 @@ char * getInputDirectory(int argc, char ** argv) {
 char * getOutputDirectory(int argc, char ** argv) {
     return getFlagValue("-o", argc, argv);
 }
+
+// Returns the pool size if found in <argv>, else returns NULL.
+char * getPoolSize(int argc, char ** argv) {
+    return getFlagValue("-s", argc, argv);
+}
