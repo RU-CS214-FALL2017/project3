@@ -47,14 +47,55 @@ char * getFlagValue(const char * flag, int argc, char ** argv) {
 // error and exits with a failure of status.
 char * getPortNumber(int argc, char ** argv) {
     
-    char * columnHeader = getFlagValue("-p", argc, argv);
+    char * portNumber = getFlagValue("-p", argc, argv);
+    
+    if (portNumber == NULL) {
+        
+        fprintf(stderr, "Port number not specified\n");
+        exit(EXIT_FAILURE);
+        
+    } else {
+        return portNumber;
+    }
+}
+
+// Returns the column header to sort by. If <argv> doesn't
+// have a specified column header, the functions prints an
+// error and exits with a failure of status.
+char * getColumnHeader(int argc, char ** argv) {
+    
+    char * columnHeader = getFlagValue("-c", argc, argv);
     
     if (columnHeader == NULL) {
         
-        fprintf(stderr, "Port not specified\n");
+        fprintf(stderr, "Column header not specified\n");
         exit(EXIT_FAILURE);
         
     } else {
         return columnHeader;
     }
+}
+
+char * getHostname(int argc, char ** argv) {
+    
+    char * hostname = getFlagValue("-d", argc, argv);
+    
+    if (hostname == NULL) {
+        
+        fprintf(stderr, "Hostname not specified\n");
+        exit(EXIT_FAILURE);
+        
+    } else {
+        return hostname;
+    }
+}
+
+// Returns the input directory if found in <argv>, else returns NULL.
+char * getInputDirectory(int argc, char ** argv) {
+    return getFlagValue("-d", argc, argv);
+}
+
+// Returns the output directory if found in <argv>, else returns NULL.
+char * getOutputDirectory(int argc, char ** argv) {
+    return getFlagValue("-o", argc, argv);
 }
