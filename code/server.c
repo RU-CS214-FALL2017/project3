@@ -27,18 +27,25 @@ int main(int argc, char ** argv) {
         exit(EXIT_FAILURE);
     }
     
-    printf("listen: %d\n", listen(socketFd, 10));
+    if(listen(socketFd, 10) == -1) {
+        
+        fprintf(stderr, "Error listening on port %s\n", port);
+        exit(EXIT_FAILURE);
+    }
+    
     int acceptedFd = accept(socketFd, NULL, NULL);
-    printf("acceptedfd: %d\n", acceptedFd);
+    if (acceptedFd == -1) {
+        
+        fprintf(stderr, "Error accepting connection\n");
+        exit(EXIT_FAILURE);
+    }
+    
     char buff;
-    
-    
     
     for(int i = 0; i < 100; i++) {
         
         bzero(&buff, 1);
         read(acceptedFd, &buff, 1);
         printf("%c", buff);
-//        write(acceptedFd, str, strlen(str) + 1);
     }
 }
