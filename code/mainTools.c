@@ -45,17 +45,17 @@ char * getFlagValue(const char * flag, int argc, char ** argv) {
 // Returns the port to bind on. If <argv> doesn't
 // have a specified port, the function prints an
 // error and exits with a failure of status.
-char * getPortNumber(int argc, char ** argv) {
+char * getPort(int argc, char ** argv) {
     
-    char * portNumber = getFlagValue("-p", argc, argv);
+    char * port = getFlagValue("-p", argc, argv);
     
     if (portNumber == NULL) {
         
-        fprintf(stderr, "Port number not specified\n");
+        fprintf(stderr, "Port not specified\n");
         exit(EXIT_FAILURE);
         
     } else {
-        return portNumber;
+        return port;
     }
 }
 

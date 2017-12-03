@@ -11,7 +11,7 @@
 
 int main(int argc, char ** argv) {
     
-    char * portStr = getPortNumber(argc, argv);
+    char * port = getPort(argc, argv);
     int socketFd = socket(AF_INET, SOCK_STREAM, 0);
     struct sockaddr_in serverAddr;
     
@@ -19,11 +19,11 @@ int main(int argc, char ** argv) {
     
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = htons(INADDR_ANY);
-    serverAddr.sin_port = htons(atol(portStr));
+    serverAddr.sin_port = htons(atol(port));
     
     if(bind(socketFd,(struct sockaddr *) &serverAddr, sizeof(struct sockaddr_in)) == -1) {
         
-        fprintf(stderr, "Error binding to port %s\n", portStr);
+        fprintf(stderr, "Error binding to port %s\n", port);
         exit(EXIT_FAILURE);
     }
     
