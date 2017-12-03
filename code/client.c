@@ -16,8 +16,10 @@ int main(int argc, char ** argv) {
     
     int sockFd = socket(AF_INET, SOCK_STREAM, 0);
     
-    connectToSocket(sockFd, hostname, port);
+    connectToServer(sockFd, hostname, port);
     
-    char * send = "hellp\nworld";
-    write(sockFd, send, 12);
+    char buff[100];
+    bzero(buff, 100);
+    fgets(buff, 100, stdin);
+    write(sockFd, buff, 100);
 }
