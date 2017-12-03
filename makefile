@@ -4,8 +4,8 @@ dir = code
 serverSource = $(dir)/server.c $(dir)/mainTools.c
 serverAll = $(serverSource) $(dir)/mainTools.h
 
-clientSource = $(dir)/client.c $(dir)/sorter.c $(dir)/tools.c $(dir)/mainTools.c $(dir)/queue.c
-clientAll = $(clientSource) $(dir)/sorter.h $(dir)/tools.h $(dir)/mainTools.h $(dir)/queue.h
+clientSource = $(dir)/client.c $(dir)/mainTools.c
+clientAll = $(clientSource) $(dir)/mainTools.h
 
 server: $(serverAll)
 	gcc $(flags) $(serverSource) -o server
