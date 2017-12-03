@@ -19,5 +19,5 @@ int main(int argc, char ** argv) {
     connectToSocket(sockFd, hostname, port);
     
     char * send = "hellp\nworld";
-    write(sockFd, send, 100);
+    write(sockFd, send, 12);
 }
