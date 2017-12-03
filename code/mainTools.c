@@ -49,7 +49,7 @@ char * getPort(int argc, char ** argv) {
     
     char * port = getFlagValue("-p", argc, argv);
     
-    if (portNumber == NULL) {
+    if (port == NULL) {
         
         fprintf(stderr, "Port not specified\n");
         exit(EXIT_FAILURE);
