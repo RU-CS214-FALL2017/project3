@@ -76,6 +76,8 @@ char * getColumnHeader(int argc, char ** argv) {
     }
 }
 
+// Returns the hostname. If <argv> doesn't have the hostname,
+// this function prints and error and exits.
 char * getHostname(int argc, char ** argv) {
     
     char * hostname = getFlagValue("-d", argc, argv);
