@@ -80,7 +80,7 @@ char * getColumnHeader(int argc, char ** argv) {
 // this function prints and error and exits.
 char * getHostname(int argc, char ** argv) {
     
-    char * hostname = getFlagValue("-d", argc, argv);
+    char * hostname = getFlagValue("-h", argc, argv);
     
     if (hostname == NULL) {
         
