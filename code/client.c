@@ -17,9 +17,9 @@ int main(int argc, char ** argv) {
     int sockFd = socket(AF_INET, SOCK_STREAM, 0);
     
     connectToServer(sockFd, hostname, port);
+
+    FILE * file = fdopen(sockFd, "w");
     
-    char buff[100];
-    bzero(buff, 100);
-    fgets(buff, 100, stdin);
-    write(sockFd, buff, 100);
+    fprintf(file, "hello\nman\n");
+    
 }

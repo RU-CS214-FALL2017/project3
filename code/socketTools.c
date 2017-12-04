@@ -39,20 +39,22 @@ void connectToServer(int socket, const char * hostname, const char * port) {
     freeaddrinfo(addr);
 }
 
-void test(int acceptedFd) {
-        
-    char buff[100];
-    bzero(&buff, 100);
-    read(acceptedFd, &buff, 100);
-    printf("%s\n", buff);
-    fflush(stdout);
-}
-
 void * testHelper(void * param) {
     
     int acceptedFd = (int) param;
     
-    test(acceptedFd);
+    
+    FILE * input = fdopen(acceptedFd, "r");
+    
+    char buff[100];
+    
+    fgets(buff, 100, input);
+    
+    printf("%s\n", buff);
+    
+    fgets(buff, 100, input);
+    
+    printf("%s\n", buff);
     
     pthread_exit(NULL);
 }
