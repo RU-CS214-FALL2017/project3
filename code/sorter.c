@@ -255,7 +255,7 @@ void * sortCsv(FILE * csv) {
     
     struct table * table = malloc(sizeof(struct table));
     
-    if (!fillTable(csv, table)) {
+    if (!fillTable(csv, 0, table)) {
         
 //        pthread_mutex_lock(&CEM);
 //        CsvErrors += sprintf(CsvErrors, "Not a proper movie_metadata CSV file: %s\n", path);

@@ -168,7 +168,7 @@ void freeTable(struct table * table) {
 // Returns the number of successful rows in table, returns 0 if <csvFile>
 // is not a proper movie_metadata CSV. Reallocates <table> and <cells>.
 // To free, free <table>[i], 0 < i <return value.
-int fillTable(FILE * csv, struct table * table) {
+int fillTable(FILE * csv, uint32_t csvSize, struct table * table) {
     
     table->numRowsMems = 1;
     table->numCellsMems = 1;
@@ -184,7 +184,9 @@ int fillTable(FILE * csv, struct table * table) {
     char ** j = (*(table->rowsMems));
 
     
-    while(fgets(i, TEMPSIZE, csv) != NULL) {
+    while(fgets(i, TEMPSIZE, csv) != NULL && csvSize > 0) {
+        
+        csvSize -= strlen(i);
         
         table->table[numRows] = j;
         
@@ -247,18 +249,18 @@ void printTable (FILE * stream, char *** table, unsigned int rows) {
     }
 }
 
-// If <areNumbers> is set to 0, returns 0 if <y> is lexicographically before <x>,
-// else returns 1. If <areNumbers> is set to anything besides 0, converts <x> and
-// <y> to double values x y respectively, and returns x <= y.
-int isXBeforeY (const char * x, const char * y) {
-    
-    if (IsNumeric) {
-        return atof(x) <= atof(y);
-        
-    } else {
-        return (strcmp(x, y) <= 0);
-    }
-}
+//// If <areNumbers> is set to 0, returns 0 if <y> is lexicographically before <x>,
+//// else returns 1. If <areNumbers> is set to anything besides 0, converts <x> and
+//// <y> to double values x y respectively, and returns x <= y.
+//int isXBeforeY (const char * x, const char * y) {
+//    
+//    if (IsNumeric) {
+//        return atof(x) <= atof(y);
+//        
+//    } else {
+//        return (strcmp(x, y) <= 0);
+//    }
+//}
 
 // Returns 1 if <csvPath> is a path to a "proper" .csv file, else returns 0.
 int isCsv(const char * csvPath) {
@@ -272,17 +274,17 @@ int isCsv(const char * csvPath) {
     return 0;
 }
 
-// If the name of the CSV file located at <path> is A. This function returns
-// the newly allocated string: "<outputDir>/AllFiles-sorted-<Header>.csv".
-void printToSortedCsv(struct table * table) {
-    
-    char sortedCsvPath[strlen(OutputDir) + strlen(Header) + 22];
-    sprintf(sortedCsvPath, "%s/AllFiles-sorted-%s.csv", OutputDir, Header);
-    
-    FILE * out = fopen(sortedCsvPath, "w");
-    printTable(out, table->table, table->numRows);
-    fclose(out);
-}
+//// If the name of the CSV file located at <path> is A. This function returns
+//// the newly allocated string: "<outputDir>/AllFiles-sorted-<Header>.csv".
+//void printToSortedCsv(struct table * table) {
+//
+//    char sortedCsvPath[strlen(OutputDir) + strlen(Header) + 22];
+//    sprintf(sortedCsvPath, "%s/AllFiles-sorted-%s.csv", OutputDir, Header);
+//
+//    FILE * out = fopen(sortedCsvPath, "w");
+//    printTable(out, table->table, table->numRows);
+//    fclose(out);
+//}
 
 // Checks weather <path> is a valid directory, if not,
 // the program crashes with an approiate error message.
@@ -320,139 +322,139 @@ void checkDir(const char * path, const char * dirType) {
     closedir(dir);
 }
 
-// Returns the index of <header>, and sets <IsNumeric>.
-unsigned int getIndex(const char * header) {
-    
-    if (!strcmp("color", header)) {
-        IsNumeric = 0;
-        return 0;
-    } else if (!strcmp("director_name", header)) {
-        IsNumeric = 0;
-        return 1;
-    } else if (!strcmp("num_critic_for_reviews", header)) {
-        IsNumeric = 1;
-        return 2;
-    } else if (!strcmp("duration", header)) {
-        IsNumeric = 1;
-        return 3;
-    } else if (!strcmp("director_facebook_likes", header)) {
-        IsNumeric = 1;
-        return 4;
-    } else if (!strcmp("actor_3_facebook_likes", header)) {
-        IsNumeric = 1;
-        return 5;
-    } else if (!strcmp("actor_2_name", header)) {
-        IsNumeric = 0;
-        return 6;
-    } else if (!strcmp("actor_1_facebook_likes", header)) {
-        IsNumeric = 1;
-        return 7;
-    } else if (!strcmp("gross", header)) {
-        IsNumeric = 1;
-        return 8;
-    } else if (!strcmp("genres", header)) {
-        IsNumeric = 0;
-        return 9;
-    } else if (!strcmp("actor_1_name", header)) {
-        IsNumeric = 0;
-        return 10;
-    } else if (!strcmp("movie_title", header)) {
-        IsNumeric = 0;
-        return 11;
-    } else if (!strcmp("num_voted_users", header)) {
-        IsNumeric = 1;
-        return 12;
-    } else if (!strcmp("cast_total_facebook_likes", header)) {
-        IsNumeric = 1;
-        return 13;
-    } else if (!strcmp("actor_3_name", header)) {
-        IsNumeric = 0;
-        return 14;
-    } else if (!strcmp("facenumber_in_poster", header)) {
-        IsNumeric = 1;
-        return 15;
-    } else if (!strcmp("plot_keywords", header)) {
-        IsNumeric = 0;
-        return 16;
-    } else if (!strcmp("movie_imdb_link", header)) {
-        IsNumeric = 0;
-        return 17;
-    } else if (!strcmp("num_user_for_reviews", header)) {
-        IsNumeric = 1;
-        return 18;
-    } else if (!strcmp("language", header)) {
-        IsNumeric = 0;
-        return 19;
-    } else if (!strcmp("country", header)) {
-        IsNumeric = 0;
-        return 20;
-    } else if (!strcmp("content_rating", header)) {
-        IsNumeric = 0;
-        return 21;
-    } else if (!strcmp("budget", header)) {
-        IsNumeric = 1;
-        return 22;
-    } else if (!strcmp("title_year", header)) {
-        IsNumeric = 1;
-        return 23;
-    } else if (!strcmp("actor_2_facebook_likes", header)) {
-        IsNumeric = 1;
-        return 24;
-    } else if (!strcmp("imdb_score", header)) {
-        IsNumeric = 1;
-        return 25;
-    } else if (!strcmp("aspect_ratio", header)) {
-        IsNumeric = 1;
-        return 26;
-    } else if (!strcmp("movie_facebook_likes", header)) {
-        IsNumeric = 1;
-        return 27;
-    } else {
-        fprintf(stderr, "The specified header, %s, was not found\n", header);
-        exit(EXIT_FAILURE);
-    }
-}
+//// Returns the index of <header>, and sets <IsNumeric>.
+//unsigned int getIndex(const char * header) {
+//    
+//    if (!strcmp("color", header)) {
+//        IsNumeric = 0;
+//        return 0;
+//    } else if (!strcmp("director_name", header)) {
+//        IsNumeric = 0;
+//        return 1;
+//    } else if (!strcmp("num_critic_for_reviews", header)) {
+//        IsNumeric = 1;
+//        return 2;
+//    } else if (!strcmp("duration", header)) {
+//        IsNumeric = 1;
+//        return 3;
+//    } else if (!strcmp("director_facebook_likes", header)) {
+//        IsNumeric = 1;
+//        return 4;
+//    } else if (!strcmp("actor_3_facebook_likes", header)) {
+//        IsNumeric = 1;
+//        return 5;
+//    } else if (!strcmp("actor_2_name", header)) {
+//        IsNumeric = 0;
+//        return 6;
+//    } else if (!strcmp("actor_1_facebook_likes", header)) {
+//        IsNumeric = 1;
+//        return 7;
+//    } else if (!strcmp("gross", header)) {
+//        IsNumeric = 1;
+//        return 8;
+//    } else if (!strcmp("genres", header)) {
+//        IsNumeric = 0;
+//        return 9;
+//    } else if (!strcmp("actor_1_name", header)) {
+//        IsNumeric = 0;
+//        return 10;
+//    } else if (!strcmp("movie_title", header)) {
+//        IsNumeric = 0;
+//        return 11;
+//    } else if (!strcmp("num_voted_users", header)) {
+//        IsNumeric = 1;
+//        return 12;
+//    } else if (!strcmp("cast_total_facebook_likes", header)) {
+//        IsNumeric = 1;
+//        return 13;
+//    } else if (!strcmp("actor_3_name", header)) {
+//        IsNumeric = 0;
+//        return 14;
+//    } else if (!strcmp("facenumber_in_poster", header)) {
+//        IsNumeric = 1;
+//        return 15;
+//    } else if (!strcmp("plot_keywords", header)) {
+//        IsNumeric = 0;
+//        return 16;
+//    } else if (!strcmp("movie_imdb_link", header)) {
+//        IsNumeric = 0;
+//        return 17;
+//    } else if (!strcmp("num_user_for_reviews", header)) {
+//        IsNumeric = 1;
+//        return 18;
+//    } else if (!strcmp("language", header)) {
+//        IsNumeric = 0;
+//        return 19;
+//    } else if (!strcmp("country", header)) {
+//        IsNumeric = 0;
+//        return 20;
+//    } else if (!strcmp("content_rating", header)) {
+//        IsNumeric = 0;
+//        return 21;
+//    } else if (!strcmp("budget", header)) {
+//        IsNumeric = 1;
+//        return 22;
+//    } else if (!strcmp("title_year", header)) {
+//        IsNumeric = 1;
+//        return 23;
+//    } else if (!strcmp("actor_2_facebook_likes", header)) {
+//        IsNumeric = 1;
+//        return 24;
+//    } else if (!strcmp("imdb_score", header)) {
+//        IsNumeric = 1;
+//        return 25;
+//    } else if (!strcmp("aspect_ratio", header)) {
+//        IsNumeric = 1;
+//        return 26;
+//    } else if (!strcmp("movie_facebook_likes", header)) {
+//        IsNumeric = 1;
+//        return 27;
+//    } else {
+//        fprintf(stderr, "The specified header, %s, was not found\n", header);
+//        exit(EXIT_FAILURE);
+//    }
+//}
 
-// Process directory at <param>. Processes subdirectories
-// and sorts files with new threads.
-void * processCsvDir(void * param) {
-    
-    char * path = param;
-    
-    DIR * dir = opendir(path);
-    
-    pthread_t children[TEMPSIZE];
-    unsigned int cc = 0;
-
-    for (struct dirent * entry = readdir(dir); entry != NULL; entry = readdir(dir)) {
-
-        if ((entry->d_type == DT_DIR && strcmp(entry->d_name, ".")
-             && strcmp(entry->d_name, "..")) || entry->d_type == DT_REG) {
-            
-            char * subPath = malloc(strlen(path) + strlen(entry->d_name) + 2);
-            sprintf(subPath, "%s/%s", path, entry->d_name);
-            
-            if (entry->d_type == DT_DIR) {
-                pthread_create(children + cc, NULL, processCsvDir, subPath);
-                
-            } else {
-                
-                incrementCsvCount();
-                pthread_create(children + cc, NULL, sortCsv, subPath);
-            }
-            
-            printf("%lu,", (unsigned long) children[cc]);
-            
-            cc++;
-        }
-    }
-    
-    pthread_mutex_lock(&ATCM);
-    AllThreadsCount += cc;
-    pthread_mutex_unlock(&ATCM);
-
-    closedir(dir);
-    free(param);
-    pthread_exit(NULL);
-}
+//// Process directory at <param>. Processes subdirectories
+//// and sorts files with new threads.
+//void * processCsvDir(void * param) {
+//
+//    char * path = param;
+//
+//    DIR * dir = opendir(path);
+//
+//    pthread_t children[TEMPSIZE];
+//    unsigned int cc = 0;
+//
+//    for (struct dirent * entry = readdir(dir); entry != NULL; entry = readdir(dir)) {
+//
+//        if ((entry->d_type == DT_DIR && strcmp(entry->d_name, ".")
+//             && strcmp(entry->d_name, "..")) || entry->d_type == DT_REG) {
+//
+//            char * subPath = malloc(strlen(path) + strlen(entry->d_name) + 2);
+//            sprintf(subPath, "%s/%s", path, entry->d_name);
+//
+//            if (entry->d_type == DT_DIR) {
+//                pthread_create(children + cc, NULL, processCsvDir, subPath);
+//
+//            } else {
+//
+//                incrementCsvCount();
+//                pthread_create(children + cc, NULL, sortCsv, subPath);
+//            }
+//
+//            printf("%lu,", (unsigned long) children[cc]);
+//
+//            cc++;
+//        }
+//    }
+//
+//    pthread_mutex_lock(&ATCM);
+//    AllThreadsCount += cc;
+//    pthread_mutex_unlock(&ATCM);
+//
+//    closedir(dir);
+//    free(param);
+//    pthread_exit(NULL);
+//}
 

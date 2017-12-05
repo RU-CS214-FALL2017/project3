@@ -4,6 +4,9 @@
 #define TEMPSIZE 4096
 #define COLUMNS 28
 
+#include <stdio.h>
+#include <stdint.h>
+
 extern unsigned int AllThreadsCount;
 
 struct table {
@@ -22,7 +25,7 @@ void checkDir(const char * path, const char * dirType);
 void printToSortedCsv(struct table * table);
 int isCsv(const char * csvPath);
 int isXBeforeY (const char * x, const char * y);
-int fillTable(FILE * csv, struct table * table);
+int fillTable(FILE * csv, uint32_t csvSize, struct table * table);
 void printTable (FILE * stream, char *** table, unsigned int rows);
 void freeTable(struct table * table);
 

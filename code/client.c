@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/stat.h>
 
 #include "mainTools.h"
 #include "clientTools.h"
@@ -13,13 +15,9 @@ int main(int argc, char ** argv) {
     
     char * hostname = getHostname(argc, argv);
     char * port = getPort(argc, argv);
-    
-    int sockFd = socket(AF_INET, SOCK_STREAM, 0);
-    
-    connectToServer(sockFd, hostname, port);
 
-    FILE * file = fdopen(sockFd, "w");
-    
-    fprintf(file, "hello\nman\n");
-    
+   
+    uint32_t id = requestId(hostname, port);
+    printf("id: %u\n", id);
+    sortCsv("movie_metadata.csv", id, hostname, port);
 }
