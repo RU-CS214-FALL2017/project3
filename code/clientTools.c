@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 
 #include "tools.h"
+#include "socketPool.h"
 
 // Connects <socket> to <hostname> at <port>. On error, prints message
 // and exits.
@@ -47,22 +48,22 @@ FILE * connectToServer(const char * hostname, const char * port) {
     return fdopen(sockFd, "r+");
 }
 
-uint32_t requestId(const char * hostname, const char * port) {
+uint32_t requestId() {
     
-    FILE * server = connectToServer(hostname, port);
+    FILE * server = getSocket();
     
     fprintf(server, "init");
     uint32_t netId;
     fread(&netId, sizeof(netId), 1, server);
     
-    fclose(server);
+    returnSocket(server);
     
     return ntohl(netId);
 }
 
-void sortCsv(const char * path, uint32_t id, const char * hostname, const char * port) {
+void sortCsv(const char * path, uint32_t id) {
     
-    FILE * server = connectToServer(hostname, port);
+    FILE * server = getSocket();
     
     fwrite("sort", 4, 1, server);
     
@@ -82,5 +83,5 @@ void sortCsv(const char * path, uint32_t id, const char * hostname, const char *
         fprintf(server, "%s", temp);
     }
     
-    fclose(server);
+    returnSocket(server);
 }
