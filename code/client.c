@@ -10,14 +10,21 @@
 
 #include "mainTools.h"
 #include "clientTools.h"
+#include "socketPool.h"
 
 int main(int argc, char ** argv) {
     
     char * hostname = getHostname(argc, argv);
     char * port = getPort(argc, argv);
+    
+    initializeSockets(hostname, port, (unsigned int) atol(getPoolSize(argc, argv)));
 
    
-    uint32_t id = requestId(hostname, port);
-    printf("id: %u\n", id);
-    sortCsv("movie_metadata.csv", id, hostname, port);
+    for(int i = 0; i < 10; i++) {
+        
+        uint32_t id = requestId();
+        printf("id: %u\n", id);
+    }
+    
+    closeSockets();
 }

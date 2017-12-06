@@ -52,7 +52,9 @@ uint32_t requestId() {
     
     FILE * server = getSocket();
     
-    fprintf(server, "init");
+    fwrite("init", 1, 4, server);
+//    write(fileno(server), "init", 4);
+//    send(fileno(server), "init", 4, MSG_NOSIGNAL);
     uint32_t netId;
     fread(&netId, sizeof(netId), 1, server);
     

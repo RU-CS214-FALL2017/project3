@@ -4,6 +4,9 @@
 #include <semaphore.h>
 #include <fcntl.h>
 #include <stdint.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 
 #include "clientTools.h"
 #include "syncWraps.h"
@@ -18,6 +21,7 @@ struct SocketQueueNode * head;
 struct SocketQueueNode * tail;
 pthread_mutex_t SocketQueueLock = PTHREAD_MUTEX_INITIALIZER;
 sem_t SocketQueueSemaphore;
+unsigned int TotalSockets;
 
 // Reterns the first socket in the queue and
 // removes it. Thread safe.
@@ -63,12 +67,12 @@ void pushSocket(FILE * socket) {
 // connected to <hostname> on <port>.
 void initializeSockets(const char * hostname, const char * port, unsigned int num) {
     
-    semInit(&SocketQueueSemaphore, "SocketQueueSemaphore", num);
+    semInit(&SocketQueueSemaphore, "SocketQueueSemaphore", 0);
+    TotalSockets = num;
     
     for (int i = 0; i < num; i++) {
         
         FILE * server = connectToServer(hostname, port);
-        fprintf(server, "none");
         pushSocket(server);
     }
 }
@@ -86,15 +90,11 @@ void returnSocket(FILE * socket) {
 // Closes all the sockets in the pool.
 void closeSockets() {
     
-    mutexLock(&SocketQueueLock, "SocketQueueLock");
-    
-    int elements = semGetValue(&SocketQueueSemaphore, "SocketQueueSemaphore");
-    
-    while (elements > 0) {
+    for (int i = 0; i < TotalSockets; i++) {
         
-        fclose(popSocket());
-        elements = semGetValue(&SocketQueueSemaphore, "SocketQueueSemaphore");
+        printf("close loop: %d\n", i);
+        FILE * server = popSocket();
+        fwrite("done", 4, 1, server);
+        fclose(server);
     }
-    
-    mutexUnlock(&SocketQueueLock, "SocketQueueLock");
 }
