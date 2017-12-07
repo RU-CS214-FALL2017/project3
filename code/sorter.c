@@ -92,14 +92,6 @@ int sortByHeader(const char * header, struct Table * table) {
 // Returns a new, sorted, merged table.
 struct Table * mergeTables(struct Table * table1, struct Table * table2, unsigned int sortIndex, int isNumeric) {
     
-    if (table1->rows == 0) {
-        return table2;
-    }
-    
-    if (table2->rows == 0) {
-        return table1;
-    }
-    
     struct Table * table = malloc(sizeof(struct Table));
     table->table = malloc(sizeof(char **) * (table1->rows + table2->rows - 1));
     table->rows = table1->rows + table2->rows - 1;
