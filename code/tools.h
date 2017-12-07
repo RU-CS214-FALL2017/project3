@@ -15,6 +15,7 @@ struct Table {
 };
 
 unsigned int tokenizeRow(const char * line, char * ** row);
+int sameHeaders(struct Table * table1, struct Table * table2);
 void trim (char * str);
 void removeChars (char * str, unsigned long startIndex, unsigned long endIndex);
 void fillTable(FILE * stream, uint32_t size, struct Table * table);

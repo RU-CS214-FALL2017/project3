@@ -70,6 +70,23 @@ unsigned int tokenizeRow(const char * line, char * ** row) {
     return i;
 }
 
+// Returns 1 if both tables have the same headers, else 0.
+int sameHeaders(struct Table * table1, struct Table * table2) {
+    
+    if (table1->columns != table2->columns) {
+        return 0;
+    }
+    
+    for (int i = 0; i < table1->columns; i++) {
+        
+        if (strcmp((table1->table)[0][i], (table2->table)[0][i]) != 0) {
+            return 0;
+        }
+    }
+    
+    return 1;
+}
+
 // Removes leading and trailing whitespaces from <str>.
 void trim (char * str) {
     
