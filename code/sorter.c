@@ -103,6 +103,7 @@ struct Table * mergeTables(struct Table * table1, struct Table * table2, unsigne
     struct Table * table = malloc(sizeof(struct Table));
     table->table = malloc(sizeof(char **) * (table1->rows + table2->rows - 1));
     table->rows = table1->rows + table2->rows - 1;
+    table->columns = table1->columns;
     
     unsigned int fc = 1;
     unsigned int sc = 1;
