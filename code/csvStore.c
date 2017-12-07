@@ -18,6 +18,7 @@ struct CsvsNode {
     
 } * Head = NULL;
 
+// Initializes an ID in the store.
 void initializeId(uint32_t id, unsigned int sortIndex) {
     
     struct CsvsNode * newNode = malloc(sizeof(struct CsvsNode));
@@ -35,6 +36,7 @@ void initializeId(uint32_t id, unsigned int sortIndex) {
     mutexUnlock(&ListMutex, "CsvsListLock");
 }
 
+// Adds a table to the store.
 int addTable(struct Table * table, uint32_t id) {
     
     mutexLock(&ListMutex, "CsvsListLock");
@@ -69,6 +71,7 @@ int addTable(struct Table * table, uint32_t id) {
     return 0;
 }
 
+// Dumps a table from the store.
 struct Table * dumpTable(uint32_t id) {
     
     mutexLock(&ListMutex, "CsvsListLock");
