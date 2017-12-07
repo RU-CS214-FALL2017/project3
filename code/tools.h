@@ -1,32 +1,34 @@
 #ifndef tools_h
 #define tools_h
 
-#define TEMPSIZE 4096
-#define COLUMNS 28
-
 #include <stdio.h>
+#include <sys/types.h>
 #include <stdint.h>
 
-extern unsigned int AllThreadsCount;
+#define TEMPSIZE 4098
 
-struct table {
-  
+struct Table {
+    
     char *** table;
-    char * ** rowsMems;
-    char * * cellsMems;
-    unsigned int numRows;
-    unsigned int numRowsMems;
-    unsigned int numCellsMems;
+    unsigned int rows;
+    unsigned int columns;
 };
 
-void * processCsvDir(void * param);
-unsigned int getIndex(const char * header);
-void checkDir(const char * path, const char * dirType);
-void printToSortedCsv(struct table * table);
+unsigned int tokenizeRow(const char * line, char * ** row);
+void trim (char * str);
+void removeChars (char * str, unsigned long startIndex, unsigned long endIndex);
+void fillTable(FILE * stream, uint32_t size, struct Table * table);
+void printTable (FILE * stream, struct Table * table);
+int isNumber(const char * str);
+int isXBeforeY (const char * x, const char * y, int areNumbers);
+int isNumericColumn(struct Table * table, int columnIndex);
+int findCsvFiles(const char * dirPath, char * ** csvPaths, int * numFound);
 int isCsv(const char * csvPath);
-int isXBeforeY (const char * x, const char * y);
-int fillTable(FILE * csv, uint32_t csvSize, struct table * table);
-void printTable (FILE * stream, char *** table, unsigned int rows);
-void freeTable(struct table * table);
+unsigned int lineageParser(const char * path, char * ** lineage);
+char * sortedCsvPath(const char * csvPath, const char * columnHeader, const char * outputDir);
+int getColumnHeaderIndex(const char * columnHeader, struct Table * table);
+//void printDirTree(FILE * output, struct sharedMem * sharedMem);
+//unsigned int dirSubProcessCount(pid_t dirPid, struct sharedMem * sharedMem);
+void checkDir(const char * path, const char * dirType);
 
 #endif /* tools_h */
