@@ -18,6 +18,7 @@ unsigned int tokenizeRow(const char * line, char * ** row);
 int sameHeaders(struct Table * table1, struct Table * table2);
 void trim (char * str);
 void removeChars (char * str, unsigned long startIndex, unsigned long endIndex);
+void freeTable(struct Table * table);
 void fillTable(FILE * stream, uint32_t size, struct Table * table);
 void printTable (FILE * stream, struct Table * table);
 int isNumber(const char * str);
