@@ -55,6 +55,7 @@ int addTable(struct Table * table, uint32_t id) {
                     fprintf(stderr, "Column header %s not found in CSV\n", i->columnHeader);
                     return 0;
                 }
+                i->isNumericColumn = isNumericColumn(table, i->sortIndex);
                 i->table = table;
                 
             } else if (sameHeaders(i->table, table)) {
@@ -92,6 +93,7 @@ struct Table * dumpTable(uint32_t id) {
             temp->next = i->next;
             struct Table * ret = i->table;
             free(i);
+            mutexUnlock(&ListMutex, "CsvsListLock");
             return ret;
         }
         
@@ -101,4 +103,26 @@ struct Table * dumpTable(uint32_t id) {
     mutexUnlock(&ListMutex, "CsvsListLock");
     
     return NULL;
+}
+
+// Returns 1 if <id> found, else returns 0.
+int getInfo(uint32_t id, unsigned int * sortIndex, int * isNumeric) {
+    
+    mutexLock(&ListMutex, "CsvsListLock");
+    
+    for (struct CsvsNode * i = Head; i != NULL; i = Head->next) {
+        
+        if (i->id == id) {
+            
+            *sortIndex = i->sortIndex;
+            *isNumeric = i->isNumericColumn;
+            
+            mutexUnlock(&ListMutex, "CsvsListLock");
+            return 1;
+        }
+    }
+    
+    mutexUnlock(&ListMutex, "CsvsListLock");
+    
+    return 0;
 }
