@@ -3,6 +3,7 @@
 
 #include "tools.h"
 #include "sorter.h"
+#include "csvStore.h"
 
 // Merges sub rows from <table>, where subrows1 is from row at index <start>
 // inclusive to row at index <mid> exclusive, and subrows2 is from row at
@@ -77,14 +78,17 @@ void mergeSort(char *** table, const unsigned int columnIndex, const int areNumb
 // Ascendingly sorts <table> with <rows> rows and <columns> columns according to
 // the column with the header <columnHeader>. Returns 1 if <columnHeader>
 // was found, else returns 0.
-int sortByHeader(const char * header, struct Table * table) {
+int sortById(uint32_t id, struct Table * table) {
     
-    unsigned int columnIndex = getColumnHeaderIndex(header, table);
-    if (columnIndex == -1) {
+    unsigned int sortIndex;
+    int isNumeric;
+    
+    if (!getInfo(id, &sortIndex, &isNumeric)) {
         return 0;
     }
     
-    mergeSort(table->table, columnIndex, isNumericColumn(table, columnIndex), 1, table->rows);
+    mergeSort(table->table, sortIndex, isNumeric, 1, table->rows);
+    
     return 1;
 }
 
