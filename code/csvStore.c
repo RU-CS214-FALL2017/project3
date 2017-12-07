@@ -11,6 +11,7 @@ struct CsvsNode {
     
 //    pthread_mutex_t lock;
     uint32_t id;
+    char * columnHeader;
     unsigned int sortIndex;
     int isNumericColumn;
     struct Table * table;
@@ -19,12 +20,12 @@ struct CsvsNode {
 } * Head = NULL;
 
 // Initializes an ID in the store.
-void initializeId(uint32_t id, unsigned int sortIndex) {
+void initializeId(uint32_t id, char * columnHeader) {
     
     struct CsvsNode * newNode = malloc(sizeof(struct CsvsNode));
 //    mutexInit(&(newNode->lock), "CsvsNodeLock");
     newNode->id = id;
-    newNode->sortIndex = sortIndex;
+    newNode->columnHeader = columnHeader;
     newNode->table = NULL;
     newNode->next = NULL;
     
@@ -48,6 +49,12 @@ int addTable(struct Table * table, uint32_t id) {
 //            mutexLock(&(i->lock), "TableLock");
             
             if (i->table == NULL) {
+                
+                i->sortIndex = getColumnHeaderIndex(i->columnHeader, table);
+                if (i->sortIndex == -1) {
+                    fprintf(stderr, "Column header %s not found in CSV\n", i->columnHeader);
+                    return 0;
+                }
                 i->table = table;
                 
             } else if (sameHeaders(i->table, table)) {
