@@ -1,6 +1,8 @@
 #ifndef syncWraps_h
 #define syncWraps_h
 
+#include <semaphore.h>
+
 void mutexInit(pthread_mutex_t * m, const char * name);
 void mutexLock(pthread_mutex_t * m, const char * name);
 void mutexUnlock(pthread_mutex_t * m, const char * name);
