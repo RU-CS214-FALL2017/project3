@@ -17,8 +17,8 @@ struct SocketQueueNode {
     struct SocketQueueNode * next;
 };
 
-struct SocketQueueNode * head;
-struct SocketQueueNode * tail;
+struct SocketQueueNode * Head;
+struct SocketQueueNode * Tail;
 pthread_mutex_t SocketQueueLock = PTHREAD_MUTEX_INITIALIZER;
 sem_t SocketQueueSemaphore;
 unsigned int TotalSockets;
@@ -30,8 +30,8 @@ FILE * popSocket() {
     mutexLock(&SocketQueueLock, "SocketQueueLock");
     semWait(&SocketQueueSemaphore, "SocketQueueSemaphore");
     
-    struct SocketQueueNode * oldHead = head;
-    head = oldHead->next;
+    struct SocketQueueNode * oldHead = Head;
+    Head = oldHead->next;
     
     mutexUnlock(&SocketQueueLock, "SocketQueueLock");
     
@@ -53,11 +53,11 @@ void pushSocket(FILE * socket) {
     int elements = semGetValue(&SocketQueueSemaphore, "SocketQueueSemaphore");
     
     if (elements == 0) {
-        head = newNode;
+        Head = newNode;
     } else {
-        tail->next = newNode;
+        Tail->next = newNode;
     }
-    tail = newNode;
+    Tail = newNode;
     
     semPost(&SocketQueueSemaphore, "SocketQueueSemaphore");
     mutexUnlock(&SocketQueueLock, "SocketQueueLock");
