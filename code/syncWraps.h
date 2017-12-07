@@ -1,6 +1,7 @@
 #ifndef syncWraps_h
 #define syncWraps_h
 
+void mutexInit(pthread_mutex_t * m, const char * name);
 void mutexLock(pthread_mutex_t * m, const char * name);
 void mutexUnlock(pthread_mutex_t * m, const char * name);
 void semWait(sem_t * s, const char * name);

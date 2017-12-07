@@ -3,6 +3,15 @@
 #include <pthread.h>
 #include <stdlib.h>
 
+void mutexInit(pthread_mutex_t * m, const char * name) {
+    
+    if (pthread_mutex_init(m, NULL) != 0) {
+        
+        fprintf(stderr, "Error initializing %s\n", name);
+        exit(EXIT_FAILURE);
+    }
+}
+
 void mutexLock(pthread_mutex_t * m, const char * name) {
     
     if (pthread_mutex_lock(m) != 0) {
