@@ -30,41 +30,51 @@ uint32_t getNewRequestId() {
 // Handles an WACK init request.
 void handleInit(FILE * client, const char * ip) {
     
+    uint32_t netColumnHeaderLength;
+    fread(&netColumnHeaderLength, 4, 1, client);
+    uint32_t columnHeaderLength = ntohl(netColumnHeaderLength);
+    printf("header length: %u\n", columnHeaderLength);
+    char columnHeader[columnHeaderLength + 1];
+    fgets(columnHeader, columnHeaderLength + 1, client);
+    
     uint32_t netId = htonl(getNewRequestId());
-//    write(fileno(client), &netId, sizeof(netId));
-    fwrite(&netId, sizeof(netId), 1, client);
+    fwrite(&netId, 4, 1, client);
+    
+    printf("Recieved column header: %s\n", columnHeader);
+    
     handleRequest(client, ip);
-//    close(client);
 }
+
 
 void handleSort(FILE * client, const char * ip) {
     
-//    uint32_t net[2];
-//    fread(net, sizeof(uint32_t), 2, client);
-//    uint32_t id = ntohl(net[0]);
-//    uint32_t csvSize = ntohl(net[1]);
-//
-//    printf("id: %u, sorted\n", id);
-//    struct table table;
-//    fillTable(client, csvSize, &table);
-//    fclose(client);
-//
-//    FILE * out = fopen("test.csv", "w");
-//    printTable(out, table.table, table.numRows);
-//    fclose(out);
+    uint32_t net[2];
+    fread(net, 4, 2, client);
+    uint32_t id = ntohl(net[0]);
+    uint32_t csvSize = ntohl(net[1]);
+
+    printf("csvSize: %u\n", csvSize);
+    printf("id: %u, sorted\n", id);
+    struct Table table;
+    fillTable(client, csvSize, &table);
+
+    FILE * out = fopen("test.csv", "w");
+    printTable(out, &table);
+    fclose(out);
+    
+    handleRequest(client, ip);
 }
 
+// Handles a retr request.
 void handleRetr(FILE * client, const char * ip) {
     
 //    printf("retr!\n");
 //    fclose(client);
 }
 
-void handleNone(FILE * client, const char * ip) {
-    handleRequest(client, ip);
-}
-
+// Handles a done request.
 void handleDone(FILE * client, const char * ip) {
+    
     printf("closing connection\n");
     fclose(client);
 }
@@ -74,9 +84,6 @@ void handleRequest(FILE * client, const char * ip) {
    
     char requestType[5];
     fgets(requestType, 5, client);
-//    recv(fileno(client), requestType, 4, MSG_WAITALL);
-//    read(client, requestType, 4);
-//    requestType[4] = '\0';
     
     printf("requestType %s\n", requestType);
     if (strcmp("init", requestType) == 0) {
@@ -87,9 +94,6 @@ void handleRequest(FILE * client, const char * ip) {
         
     } else if (strcmp("retr", requestType) == 0) {
         handleRetr(client, ip);
-        
-    } else if (strcmp("none", requestType) == 0) {
-        handleNone(client, ip);
         
     } else if (strcmp("done", requestType) == 0) {
         handleDone(client, ip);
