@@ -21,7 +21,7 @@ struct CsvsNode {
 void initializeId(uint32_t id, unsigned int sortIndex) {
     
     struct CsvsNode * newNode = malloc(sizeof(struct CsvsNode));
-    mutexInit(&(newNode->lock), "CsvsNodeLock");
+//    mutexInit(&(newNode->lock), "CsvsNodeLock");
     newNode->id = id;
     newNode->sortIndex = sortIndex;
     newNode->table = NULL;
