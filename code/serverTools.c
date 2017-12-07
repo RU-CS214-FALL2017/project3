@@ -10,19 +10,21 @@
 
 #include "serverTools.h"
 #include "tools.h"
+#include "sorter.h"
+#include "csvStore.h"
 
 void handleRequest(FILE * client, const char * ip);
 
 // Returns a unique generated ID.
-uint32_t getNewRequestId() {
+uint32_t getNewId() {
     
-    static uint32_t requestId = 0;
-    static pthread_mutex_t requestIdLock = PTHREAD_MUTEX_INITIALIZER;
+    static uint32_t id = 0;
+    static pthread_mutex_t idLock = PTHREAD_MUTEX_INITIALIZER;
     
-    pthread_mutex_lock(&requestIdLock);
-    uint32_t ret = requestId;
-    requestId++;
-    pthread_mutex_unlock(&requestIdLock);
+    pthread_mutex_lock(&idLock);
+    uint32_t ret = id;
+    id++;
+    pthread_mutex_unlock(&idLock);
     
     return ret;
 }
@@ -34,13 +36,16 @@ void handleInit(FILE * client, const char * ip) {
     fread(&netColumnHeaderLength, 4, 1, client);
     uint32_t columnHeaderLength = ntohl(netColumnHeaderLength);
     printf("header length: %u\n", columnHeaderLength);
-    char columnHeader[columnHeaderLength + 1];
-    fgets(columnHeader, columnHeaderLength + 1, client);
     
-    uint32_t netId = htonl(getNewRequestId());
+    char * columnHeader = malloc(columnHeaderLength + 1);
+    fgets(columnHeader, columnHeaderLength + 1, client);
+    printf("Recieved column header: %s\n", columnHeader);
+    
+    uint32_t id = getNewId();
+    uint32_t netId = htonl(id);
     fwrite(&netId, 4, 1, client);
     
-    printf("Recieved column header: %s\n", columnHeader);
+    initializeId(id, columnHeader);
     
     handleRequest(client, ip);
 }
@@ -54,12 +59,13 @@ void handleSort(FILE * client, const char * ip) {
     uint32_t csvSize = ntohl(net[1]);
 
     printf("csvSize: %u\n", csvSize);
-    printf("id: %u, sorted\n", id);
-    struct Table table;
-    fillTable(client, csvSize, &table);
+    printf("id: %u, sorting\n", id);
+    struct Table * table = malloc(sizeof(struct Table));
+    fillTable(client, csvSize, table);
+    sortById(id, table);
 
-    FILE * out = fopen("test.csv", "w");
-    printTable(out, &table);
+    FILE * out = fopen("recieved.csv", "w");
+    printTable(out, table);
     fclose(out);
     
     handleRequest(client, ip);
@@ -68,8 +74,17 @@ void handleSort(FILE * client, const char * ip) {
 // Handles a retr request.
 void handleRetr(FILE * client, const char * ip) {
     
-//    printf("retr!\n");
-//    fclose(client);
+    uint32_t netId;
+    fread(&netId, 4, 1, client);
+    uint32_t id = ntohl(netId);
+    printf("dump id: %u\n", id);
+    
+    struct Table * table = dumpTable(id);
+    FILE * out = fopen("sorted.csv", "w");
+    printTable(out, table);
+    fclose(out);
+    
+    handleRequest(client, ip);
 }
 
 // Handles a done request.
