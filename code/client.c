@@ -16,15 +16,18 @@ int main(int argc, char ** argv) {
     
     char * hostname = getHostname(argc, argv);
     char * port = getPort(argc, argv);
+    char * header = getColumnHeader(argc, argv);
     
     initializeSockets(hostname, port, (unsigned int) atol(getPoolSize(argc, argv)));
 
    
-    for(int i = 0; i < 10; i++) {
-        
-        uint32_t id = requestId();
+//    for(int i = 0; i < 10; i++) {
+    
+        uint32_t id = requestId(header);
         printf("id: %u\n", id);
-    }
+//    }
+    
+    sortCsv("movie_metadata.csv", id);
     
     closeSockets();
 }
