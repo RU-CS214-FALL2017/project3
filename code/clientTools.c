@@ -7,6 +7,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/sendfile.h>
+#include <string.h>
 
 #include "tools.h"
 #include "socketPool.h"
@@ -48,13 +50,18 @@ FILE * connectToServer(const char * hostname, const char * port) {
     return fdopen(sockFd, "r+");
 }
 
-uint32_t requestId() {
+// Requests a unique ID from the server.
+uint32_t requestId(const char * columnHeader) {
     
     FILE * server = getSocket();
     
-    fwrite("init", 1, 4, server);
-//    write(fileno(server), "init", 4);
-//    send(fileno(server), "init", 4, MSG_NOSIGNAL);
+    unsigned long headerLength = strlen(columnHeader);
+    uint32_t netHeaderLength = htonl(headerLength);
+    printf("header length: %lu\n", headerLength);
+    fwrite("init", 4, 1, server);
+    fwrite(&netHeaderLength, 4, 1, server);
+    fwrite(columnHeader, headerLength, 1, server);
+    
     uint32_t netId;
     fread(&netId, sizeof(netId), 1, server);
     
@@ -63,6 +70,7 @@ uint32_t requestId() {
     return ntohl(netId);
 }
 
+// Sends CSV file to the server.
 void sortCsv(const char * path, uint32_t id) {
     
     FILE * server = getSocket();
@@ -76,14 +84,18 @@ void sortCsv(const char * path, uint32_t id) {
     net[0] = htonl(id);
     net[1] = htonl(size);
     
-    fwrite(&net, sizeof(uint32_t), 2, server);
+    printf("csvSize: %u\n", size);
+    fwrite(&net, 4, 2, server);
     
     FILE * csv = fopen(path, "r");
-    char temp[TEMPSIZE];
+//    char temp[TEMPSIZE];
     
-    while (fgets(temp, TEMPSIZE, csv) != NULL) {
-        fprintf(server, "%s", temp);
-    }
+    fflush(server);
+    ssize_t some = sendfile(fileno(server), fileno(csv), NULL, size);
+    printf("written: %zd\n", some);
+//    while (fgets(temp, TEMPSIZE, csv) != NULL) {
+//        fprintf(server, "%s", temp);
+//    }
     
     returnSocket(server);
 }
