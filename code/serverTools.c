@@ -42,10 +42,9 @@ void handleInit(FILE * client, const char * ip) {
     printf("Recieved column header: %s\n", columnHeader);
     
     uint32_t id = getNewId();
+    initializeId(id, columnHeader);
     uint32_t netId = htonl(id);
     fwrite(&netId, 4, 1, client);
-    
-    initializeId(id, columnHeader);
     
     handleRequest(client, ip);
 }
@@ -62,7 +61,13 @@ void handleSort(FILE * client, const char * ip) {
     printf("id: %u, sorting\n", id);
     struct Table * table = malloc(sizeof(struct Table));
     fillTable(client, csvSize, table);
+    printf("table filled\n");
+    checkHeaders(table, id);
     sortById(id, table);
+    printf("table sorted\n");
+    char sorted = 1;
+    fwrite(&sorted, 1, 1, client);
+    fflush(client);
 
     FILE * out = fopen("recieved.csv", "w");
     printTable(out, table);
@@ -80,9 +85,11 @@ void handleRetr(FILE * client, const char * ip) {
     printf("dump id: %u\n", id);
     
     struct Table * table = dumpTable(id);
+    printf("got table\n");
     FILE * out = fopen("sorted.csv", "w");
     printTable(out, table);
     fclose(out);
+    printf("printed sorted\n");
     
     handleRequest(client, ip);
 }
