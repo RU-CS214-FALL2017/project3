@@ -96,6 +96,20 @@ void sortCsv(const char * path, uint32_t id) {
 //    while (fgets(temp, TEMPSIZE, csv) != NULL) {
 //        fprintf(server, "%s", temp);
 //    }
+    char sorted;
+    fread(&sorted, 1, 1, server);
+    printf("sorted: %d\n", sorted);
+    returnSocket(server);
+}
+
+void retrieveCsv(uint32_t id) {
+    
+    FILE * server = getSocket();
+    
+    uint32_t netId = htonl(id);
+    fwrite("retr", 4, 1, server);
+    fwrite(&netId, 4, 1, server);
     
     returnSocket(server);
+
 }
