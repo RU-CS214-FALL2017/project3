@@ -72,9 +72,11 @@ void handleRetr(FILE * client, const char * ip) {
     uint32_t id = ntohl(netId);
     
     struct Table * table = dumpTable(id);
-    FILE * out = fopen("sorted.csv", "w");
-    printTable(out, table);
-    fclose(out);
+    uint32_t size = printedSizeOfTable(table);
+    uint32_t netSize = htonl(size);
+    
+    fwrite(&netSize, 4, 1, client);
+    printTable(client, table);
     
     handleRequest(client, ip);
 }
