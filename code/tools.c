@@ -232,6 +232,37 @@ void printTable (FILE * stream, struct Table * table) {
     }
 }
 
+// Returns the size in bytes of <table> if it were printed.
+uint32_t printedSizeOfTable(struct Table * table) {
+    
+    uint32_t size = 0;
+    char temp[TEMPSIZE];
+    
+    for (int i = 0; i < table->rows; i++) {
+        
+        if(strchr((table->table)[i][0], ',') != NULL) {
+            size += sprintf(temp, "\"%s\"", (table->table)[i][0]);
+            
+        } else {
+            size += sprintf(temp, "%s", (table->table)[i][0]);
+        }
+        
+        for (int j = 1; j < table->columns; j++) {
+            
+            if(strchr((table->table)[i][j], ',') != NULL) {
+                size += sprintf(temp, ",\"%s\"", (table->table)[i][j]);
+                
+            } else {
+                size += sprintf(temp, ",%s", (table->table)[i][j]);
+            }
+        }
+        
+        size += sprintf(temp, "\n");
+    }
+    
+    return size;
+}
+
 // Returns 1 if <str> is a valid number, else returns 0.
 int isNumber(const char * str) {
     

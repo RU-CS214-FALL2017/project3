@@ -27,6 +27,7 @@ void removeChars (char * str, unsigned long startIndex, unsigned long endIndex);
 void freeTable(struct Table * table);
 void fillTable(FILE * stream, uint32_t size, struct Table * table);
 void printTable (FILE * stream, struct Table * table);
+uint32_t printedSizeOfTable(struct Table * table);
 int isNumber(const char * str);
 int isXBeforeY (const char * x, const char * y, int areNumbers);
 int isNumericColumn(struct Table * table, int columnIndex);
