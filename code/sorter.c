@@ -61,8 +61,8 @@ void merge(char *** table, const unsigned int columnIndex, const int areNumbers,
 // Ascendingly sorts <table> according to the column at index <columnIndex> from row at
 // index <start> to row at index <end>. If areNumbers is set to 0, the sort
 // is done numerically otherwise it is done lexicographically.
-void mergeSort(char *** table, const unsigned int columnIndex, const int areNumbers,
-               const unsigned int start, const unsigned int end) {
+void mergeSort(char *** table, unsigned int columnIndex, int areNumbers,
+               unsigned int start, unsigned int end) {
     
     if ((end - start) > 1 ) {
         
@@ -87,7 +87,11 @@ int sortById(uint32_t id, struct Table * table) {
         return 0;
     }
     
+    printf("sortIndex: %u\n", sortIndex);
+    printf("isNumeric: %d\n", isNumeric);
+    
     mergeSort(table->table, sortIndex, isNumeric, 1, table->rows);
+    addTable(table, id);
     
     return 1;
 }
