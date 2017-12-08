@@ -97,14 +97,22 @@ char sortCsv(const char * path, uint32_t id) {
     return sorted;
 }
 
-void retrieveCsv(uint32_t id) {
+void retrieveCsv(uint32_t id, const char * path) {
     
     uint32_t netId = htonl(id);
+    uint32_t netSize;
     
+    FILE * csv = fopen(path, "w");
     FILE * server = getSocket();
     
     fwrite("retr", 4, 1, server);
     fwrite(&netId, 4, 1, server);
     
+    fread(&netSize, 4, 1, server);
+    uint32_t size = ntohl(netSize);
+    fflush(server);
+    sendfile(fileno(csv), fileno(server), NULL, size);
+    
+    fclose(csv);
     returnSocket(server);
 }
