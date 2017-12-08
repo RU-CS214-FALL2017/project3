@@ -53,11 +53,11 @@ FILE * connectToServer(const char * hostname, const char * port) {
 // Requests a unique ID from the server.
 uint32_t requestId(const char * columnHeader) {
     
-    FILE * server = getSocket();
-    
     unsigned long headerLength = strlen(columnHeader);
     uint32_t netHeaderLength = htonl(headerLength);
-    printf("header length: %lu\n", headerLength);
+
+    FILE * server = getSocket();
+    
     fwrite("init", 4, 1, server);
     fwrite(&netHeaderLength, 4, 1, server);
     fwrite(columnHeader, headerLength, 1, server);
@@ -71,11 +71,7 @@ uint32_t requestId(const char * columnHeader) {
 }
 
 // Sends CSV file to the server.
-void sortCsv(const char * path, uint32_t id) {
-    
-    FILE * server = getSocket();
-    
-    fwrite("sort", 4, 1, server);
+char sortCsv(const char * path, uint32_t id) {
     
     struct stat fileInfo;
     stat(path, &fileInfo);
@@ -84,32 +80,31 @@ void sortCsv(const char * path, uint32_t id) {
     net[0] = htonl(id);
     net[1] = htonl(size);
     
-    printf("csvSize: %u\n", size);
-    fwrite(&net, 4, 2, server);
-    
     FILE * csv = fopen(path, "r");
-//    char temp[TEMPSIZE];
-    
-    fflush(server);
-    ssize_t some = sendfile(fileno(server), fileno(csv), NULL, size);
-    printf("written: %zd\n", some);
-//    while (fgets(temp, TEMPSIZE, csv) != NULL) {
-//        fprintf(server, "%s", temp);
-//    }
     char sorted;
+    
+    FILE * server = getSocket();
+    
+    fwrite("sort", 4, 1, server);
+    fwrite(&net, 4, 2, server);
+    fflush(server);
+    sendfile(fileno(server), fileno(csv), NULL, size);
+    
     fread(&sorted, 1, 1, server);
-    printf("sorted: %d\n", sorted);
+
     returnSocket(server);
+    
+    return sorted;
 }
 
 void retrieveCsv(uint32_t id) {
     
+    uint32_t netId = htonl(id);
+    
     FILE * server = getSocket();
     
-    uint32_t netId = htonl(id);
     fwrite("retr", 4, 1, server);
     fwrite(&netId, 4, 1, server);
     
     returnSocket(server);
-
 }
