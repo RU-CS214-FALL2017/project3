@@ -25,7 +25,7 @@ unsigned int TotalSockets;
 
 // Reterns the first socket in the queue and
 // removes it. Thread safe.
-FILE * popSocket() {
+FILE * getSocket() {
     
     mutexLock(&SocketQueueLock, "SocketQueueLock");
     semWait(&SocketQueueSemaphore, "SocketQueueSemaphore");
@@ -43,7 +43,7 @@ FILE * popSocket() {
 
 // Inserts <socket> at the end of the queue.
 // Thread safe.
-void pushSocket(FILE * socket) {
+void returnSocket(FILE * socket) {
     
     struct SocketQueueNode * newNode = malloc(sizeof(struct SocketQueueNode));
     newNode->socket = socket;
@@ -73,18 +73,8 @@ void initializeSockets(const char * hostname, const char * port, unsigned int nu
     for (int i = 0; i < num; i++) {
         
         FILE * server = connectToServer(hostname, port);
-        pushSocket(server);
+        returnSocket(server);
     }
-}
-
-// Returns a socket from the pool.
-FILE * getSocket() {
-    return popSocket();
-}
-
-// Place <socket> back into the pool.
-void returnSocket(FILE * socket) {
-    pushSocket(socket);
 }
 
 // Closes all the sockets in the pool.
@@ -92,8 +82,7 @@ void closeSockets() {
     
     for (int i = 0; i < TotalSockets; i++) {
         
-        printf("close loop: %d\n", i);
-        FILE * server = popSocket();
+        FILE * server = getSocket();
         fwrite("done", 4, 1, server);
         fclose(server);
     }

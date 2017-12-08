@@ -11,6 +11,7 @@
 #include "mainTools.h"
 #include "clientTools.h"
 #include "socketPool.h"
+#include "tools.h"
 
 int main(int argc, char ** argv) {
     
@@ -20,13 +21,9 @@ int main(int argc, char ** argv) {
     
     initializeSockets(hostname, port, (unsigned int) atol(getPoolSize(argc, argv)));
 
-   
-    
     uint32_t id = requestId(header);
-    printf("id: %u\n", id);
     
-    sortCsv("movie_metadata.csv", id);
+    code(sortCsv("movie_metadata.csv", id));
     retrieveCsv(id);
-    
     closeSockets();
 }

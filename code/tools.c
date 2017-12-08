@@ -7,11 +7,27 @@
 #include <unistd.h>
 
 #include "tools.h"
-//#include "forkTools.h"
-//#include "memTools.h"
 
-//int findCsvFilesHelper(const char * dirPath, char ** csvPaths, int * numFound);
-//void printDirTreeHelper(FILE * output, pid_t pid, struct sharedMem * sharedMem, unsigned int level);
+void code(char code) {
+    
+    switch (code) {
+        case SUCCESS:
+            printf("Successfully Sorted\n");
+            break;
+        case COLUMN_HEADER_NOT_FOUND:
+            fprintf(stderr, "Header not found\n");
+            break;
+        case ID_NOT_FOUND:
+            fprintf(stderr, "ID not found\n");
+            break;
+        case TABLE_INCOMPATIBLE:
+            fprintf(stderr, "Table not compatible\n");
+            break;
+        default:
+            fprintf(stderr, "Other bullshit\n");
+            break;
+    }
+}
 
 // <row> is the address to a char **. Creates a array of strings
 // A, where each comma seperated value from <line> is an element

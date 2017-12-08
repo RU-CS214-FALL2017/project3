@@ -78,22 +78,21 @@ void mergeSort(char *** table, unsigned int columnIndex, int areNumbers,
 // Ascendingly sorts <table> with <rows> rows and <columns> columns according to
 // the column with the header <columnHeader>. Returns 1 if <columnHeader>
 // was found, else returns 0.
-int sortById(uint32_t id, struct Table * table) {
+char sortAndStore(uint32_t id, struct Table * table) {
+    
+    char code = checkHeaders(table, id);
+    if (code != SUCCESS) {
+        return code;
+    }
     
     unsigned int sortIndex;
     int isNumeric;
-    
-    if (!getInfo(id, &sortIndex, &isNumeric)) {
-        return 0;
-    }
-    
-    printf("sortIndex: %u\n", sortIndex);
-    printf("isNumeric: %d\n", isNumeric);
-    
+    getInfo(id, &sortIndex, &isNumeric);
+
     mergeSort(table->table, sortIndex, isNumeric, 1, table->rows);
     addTable(table, id);
     
-    return 1;
+    return SUCCESS;
 }
 
 // Merges <table1> and <table2>. The input tables must be pre-sorted.

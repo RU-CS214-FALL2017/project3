@@ -38,55 +38,51 @@ void initializeId(uint32_t id, char * columnHeader) {
     mutexUnlock(&ListMutex, "CsvsListLock");
 }
 
-int checkHeaders(struct Table * table, uint32_t id) {
+// Returns code.
+char checkHeaders(struct Table * table, uint32_t id) {
     
     mutexLock(&ListMutex, "CsvsListLock");
     
     for (struct CsvsNode * i = Head; i != NULL; i = Head->next) {
         
         if (i->id == id) {
-            
-            //            mutexLock(&(i->lock), "TableLock");
             
             if (i->table == NULL) {
                 
                 i->sortIndex = getColumnHeaderIndex(i->columnHeader, table);
+                
                 if (i->sortIndex == -1) {
-                    fprintf(stderr, "Column header %s not found in CSV\n", i->columnHeader);
+
                     mutexUnlock(&ListMutex, "CsvsListLock");
-                    return 0;
+                    return COLUMN_HEADER_NOT_FOUND;
                 }
+                
                 i->isNumericColumn = isNumericColumn(table, i->sortIndex);
                 
             } else if (!sameHeaders(i->table, table)) {
                 
-                fprintf(stderr, "Table not compatible.\n");
                 mutexUnlock(&ListMutex, "CsvsListLock");
-                return 0;
+                return TABLE_INCOMPATIBLE;
             }
             
-            //            mutexUnlock(&(i->lock), "TableLock");
             mutexUnlock(&ListMutex, "CsvsListLock");
-            return 1;
+            return SUCCESS;
         }
     }
     
     mutexUnlock(&ListMutex, "CsvsListLock");
-    
-    fprintf(stderr, "ID %u not found\n", id);
-    return 0;
+    return ID_NOT_FOUND;
 }
 
-// Adds a table to the store.
-int addTable(struct Table * table, uint32_t id) {
+// Adds a table to the store. Returns 0 if <id> found,
+// else returns error code.
+char addTable(struct Table * table, uint32_t id) {
     
     mutexLock(&ListMutex, "CsvsListLock");
     
     for (struct CsvsNode * i = Head; i != NULL; i = Head->next) {
         
         if (i->id == id) {
-            
-//            mutexLock(&(i->lock), "TableLock");
             
             if (i->table == NULL) {
                 i->table = table;
@@ -95,19 +91,16 @@ int addTable(struct Table * table, uint32_t id) {
                 i->table = mergeTables(i->table, table, i->sortIndex, i->isNumericColumn);
             }
             
-//            mutexUnlock(&(i->lock), "TableLock");
             mutexUnlock(&ListMutex, "CsvsListLock");
-            return 1;
+            return SUCCESS;
         }
     }
     
-    mutexUnlock(&ListMutex, "CsvsListLock");
-    
-    fprintf(stderr, "ID %u not found\n", id);
-    return 0;
+    return ID_NOT_FOUND;
 }
 
-// Dumps a table from the store.
+// Dumps a table from the store. Returns NULL if
+// <id> not found.
 struct Table * dumpTable(uint32_t id) {
     
     mutexLock(&ListMutex, "CsvsListLock");
@@ -133,8 +126,8 @@ struct Table * dumpTable(uint32_t id) {
     return NULL;
 }
 
-// Returns 1 if <id> found, else returns 0.
-int getInfo(uint32_t id, unsigned int * sortIndex, int * isNumeric) {
+// Returns 0 if <id> found, else returns error code.
+char getInfo(uint32_t id, unsigned int * sortIndex, int * isNumeric) {
     
     mutexLock(&ListMutex, "CsvsListLock");
     
@@ -148,11 +141,11 @@ int getInfo(uint32_t id, unsigned int * sortIndex, int * isNumeric) {
             *isNumeric = i->isNumericColumn;
             
             mutexUnlock(&ListMutex, "CsvsListLock");
-            return 1;
+            return SUCCESS;
         }
     }
     
     mutexUnlock(&ListMutex, "CsvsListLock");
     
-    return 0;
+    return ID_NOT_FOUND;
 }

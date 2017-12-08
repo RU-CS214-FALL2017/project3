@@ -7,6 +7,11 @@
 
 #define TEMPSIZE 4098
 
+#define SUCCESS 0
+#define COLUMN_HEADER_NOT_FOUND 1
+#define ID_NOT_FOUND 2
+#define TABLE_INCOMPATIBLE 3
+
 struct Table {
     
     char *** table;
@@ -14,6 +19,7 @@ struct Table {
     unsigned int columns;
 };
 
+void code(char code);
 unsigned int tokenizeRow(const char * line, char * ** row);
 int sameHeaders(struct Table * table1, struct Table * table2);
 void trim (char * str);

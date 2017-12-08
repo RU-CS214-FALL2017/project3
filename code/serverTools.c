@@ -29,17 +29,15 @@ uint32_t getNewId() {
     return ret;
 }
 
-// Handles an WACK init request.
+// Handles an init request.
 void handleInit(FILE * client, const char * ip) {
     
     uint32_t netColumnHeaderLength;
     fread(&netColumnHeaderLength, 4, 1, client);
     uint32_t columnHeaderLength = ntohl(netColumnHeaderLength);
-    printf("header length: %u\n", columnHeaderLength);
     
     char * columnHeader = malloc(columnHeaderLength + 1);
     fgets(columnHeader, columnHeaderLength + 1, client);
-    printf("Recieved column header: %s\n", columnHeader);
     
     uint32_t id = getNewId();
     initializeId(id, columnHeader);
@@ -49,7 +47,7 @@ void handleInit(FILE * client, const char * ip) {
     handleRequest(client, ip);
 }
 
-
+// Handles sort request.
 void handleSort(FILE * client, const char * ip) {
     
     uint32_t net[2];
@@ -57,21 +55,11 @@ void handleSort(FILE * client, const char * ip) {
     uint32_t id = ntohl(net[0]);
     uint32_t csvSize = ntohl(net[1]);
 
-    printf("csvSize: %u\n", csvSize);
-    printf("id: %u, sorting\n", id);
     struct Table * table = malloc(sizeof(struct Table));
     fillTable(client, csvSize, table);
-    printf("table filled\n");
-    checkHeaders(table, id);
-    sortById(id, table);
-    printf("table sorted\n");
-    char sorted = 1;
-    fwrite(&sorted, 1, 1, client);
-    fflush(client);
-
-    FILE * out = fopen("recieved.csv", "w");
-    printTable(out, table);
-    fclose(out);
+    char code = sortAndStore(id, table);
+    
+    fwrite(&code, 1, 1, client);
     
     handleRequest(client, ip);
 }
@@ -82,14 +70,11 @@ void handleRetr(FILE * client, const char * ip) {
     uint32_t netId;
     fread(&netId, 4, 1, client);
     uint32_t id = ntohl(netId);
-    printf("dump id: %u\n", id);
     
     struct Table * table = dumpTable(id);
-    printf("got table\n");
     FILE * out = fopen("sorted.csv", "w");
     printTable(out, table);
     fclose(out);
-    printf("printed sorted\n");
     
     handleRequest(client, ip);
 }
@@ -108,6 +93,7 @@ void handleRequest(FILE * client, const char * ip) {
     fgets(requestType, 5, client);
     
     printf("requestType %s\n", requestType);
+    
     if (strcmp("init", requestType) == 0) {
         handleInit(client, ip);
         
