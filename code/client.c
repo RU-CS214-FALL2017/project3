@@ -24,6 +24,6 @@ int main(int argc, char ** argv) {
     uint32_t id = requestId(header);
     
     code(sortCsv("movie_metadata.csv", id));
-    retrieveCsv(id);
+    retrieveCsv(id, "sorted.csv");
     closeSockets();
 }

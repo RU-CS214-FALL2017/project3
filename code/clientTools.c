@@ -9,6 +9,8 @@
 #include <sys/socket.h>
 #include <sys/sendfile.h>
 #include <string.h>
+#include <fcntl.h>
+#include <errno.h>
 
 #include "tools.h"
 #include "socketPool.h"
@@ -102,6 +104,7 @@ void retrieveCsv(uint32_t id, const char * path) {
     uint32_t netId = htonl(id);
     uint32_t netSize;
     
+//    int csv = open(path, O_WRONLY);
     FILE * csv = fopen(path, "w");
     FILE * server = getSocket();
     
@@ -110,8 +113,12 @@ void retrieveCsv(uint32_t id, const char * path) {
     
     fread(&netSize, 4, 1, server);
     uint32_t size = ntohl(netSize);
-    fflush(server);
-    sendfile(fileno(csv), fileno(server), NULL, size);
+    
+    char temp[TEMPSIZE];
+    while (size > 0) {
+        size -= strlen(fgets(temp, TEMPSIZE, server));
+        fprintf(csv, "%s", temp);
+    }
     
     fclose(csv);
     returnSocket(server);
