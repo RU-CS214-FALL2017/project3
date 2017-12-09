@@ -9,16 +9,18 @@
 #include "dirTools.h"
 #include "clientTools.h"
 
+// Pthread params for the two helper processCsvDir
+// and sortCsv.
 struct Params {
     
     char * path;
     uint32_t id;
 };
 
-// Thread helper function.
+// Pthread helper function for processCsvDir.
 void * processCsvDirHelper(void * parameters) {
-    printf("in dir helper\n");fflush(stdout);
-    struct Params * params = parameters;printf("subPath: %s\n", params->path);
+
+    struct Params * params = parameters;
     processCsvDir(params->path, params->id);
     free(params->path);
     free(parameters);
@@ -26,9 +28,10 @@ void * processCsvDirHelper(void * parameters) {
     pthread_exit(NULL);
 }
 
+// Pthread helper function for sortCsv.
 void * sortCsvHelper(void * parameters) {
-    printf("in csv helper\n");fflush(stdout);
-    struct Params * params = parameters;printf("subPath: %s\n", params->path);
+
+    struct Params * params = parameters;
     sortCsv(params->path, params->id);
     free(params->path);
     free(parameters);
@@ -36,10 +39,10 @@ void * sortCsvHelper(void * parameters) {
     pthread_exit(NULL);
 }
 
-// Process directory at <param>. Processes subdirectories
-// and sorts files with new threads.
+// Searches directory at <path>. Recursive on all subdirectories.
+// Sorts all CSV files using <id>. Multithreaded.
 void processCsvDir(const char * path, uint32_t id) {
-    printf("path: %s\n", path);
+
     DIR * dir = opendir(path);
     
     pthread_t children[TEMPSIZE];
@@ -51,15 +54,15 @@ void processCsvDir(const char * path, uint32_t id) {
              && strcmp(entry->d_name, "..")) || entry->d_type == DT_REG) {
             
             struct Params * params = malloc(sizeof(struct Params));
-            params->id = id;if (params == NULL) {printf("NULL params\n");}
-            params->path = malloc(strlen(path) + strlen(entry->d_name) + 2);if (params->path == NULL) {printf("NULL path\n");}
+            params->id = id;
+            params->path = malloc(strlen(path) + strlen(entry->d_name) + 2);
             sprintf(params->path, "%s/%s", path, entry->d_name);
             
-            if (entry->d_type == DT_DIR) {printf("make childern %s\n", params->path);
-                int some = pthread_create(children + cc, NULL, processCsvDirHelper, (void *) params);
-                printf("errvaldir: %d\n", some);
-            } else {printf("make sort %s\n", params->path);
-                int some = pthread_create(children + cc, NULL, sortCsvHelper, (void *) params);printf("errvalcsv: %d\n", some);
+            if (entry->d_type == DT_DIR) {
+                pthread_create(children + cc, NULL, processCsvDirHelper, params);
+             
+            } else {
+                pthread_create(children + cc, NULL, sortCsvHelper, params);
             }
 
             cc++;
@@ -68,11 +71,9 @@ void processCsvDir(const char * path, uint32_t id) {
     
     closedir(dir);
     
-    printf("endcc: %u\n", cc);fflush(stdout);
-    for (unsigned int i = 0; i < cc; i++) {printf("gg: %u\n", cc);fflush(stdout);
+    for (unsigned int i = 0; i < cc; i++) {
         pthread_join(children[i], NULL);
-//        printf("error: %d\n", pthread_join(children[cc], NULL));
-    printf("enjjdcc: %u\n", cc);fflush(stdout);}
+    }
 }
 
 
@@ -111,4 +112,3 @@ void checkDir(const char * path, const char * dirType) {
     
     closedir(dir);
 }
-

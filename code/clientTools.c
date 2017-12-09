@@ -1,22 +1,22 @@
-#include <strings.h>
+//#include <strings.h>
 #include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
-#include <unistd.h>
+//#include <pthread.h>
+//#include <unistd.h>
 #include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/socket.h>
+//#include <sys/types.h>
+//#include <sys/socket.h>
 #include <sys/sendfile.h>
 #include <string.h>
-#include <fcntl.h>
-#include <errno.h>
-
+//#include <fcntl.h>
+//#include <errno.h>
+//
 #include "tools.h"
 #include "socketPool.h"
 
-// Connects <socket> to <hostname> at <port>. On error, prints message
-// and exits.
+//  Connects to <hostname> at <port>. On error, prints message
+// and exits, else returns the open socket.
 FILE * connectToServer(const char * hostname, const char * port) {
     
     struct addrinfo hints;
@@ -52,7 +52,8 @@ FILE * connectToServer(const char * hostname, const char * port) {
     return fdopen(sockFd, "r+");
 }
 
-// Requests a unique ID from the server.
+// Requests and returns a unique ID from the server. The
+// server instantiates the ID with <columnHeader>.
 uint32_t requestId(const char * columnHeader) {
     
     unsigned long headerLength = strlen(columnHeader);
@@ -72,7 +73,8 @@ uint32_t requestId(const char * columnHeader) {
     return ntohl(netId);
 }
 
-// Sends CSV file to the server.
+// Sends CSV file at <path> to the server for sorting in <id>'s
+// space. Prints the status of the sorted file.
 void sortCsv(const char * path, uint32_t id) {
     
     if (!isCsv(path)) {
@@ -92,20 +94,23 @@ void sortCsv(const char * path, uint32_t id) {
     char sorted;
     
     FILE * server = getSocket();
-    printf("got server\n");fflush(stdout);printf("size: %u\n", size);
+
     fwrite("sort", 4, 1, server);
     fwrite(&net, 4, 2, server);
     fflush(server);
     sendfile(fileno(server), fileno(csv), NULL, size);
-    printf("file sent\n");
+
     fread(&sorted, 1, 1, server);
-csvCodePrint(sorted, path);
+
     returnSocket(server);
+    
     fclose(csv);
     csvCodePrint(sorted, path);
 }
 
-void retrieveAndSaveCsv(uint32_t id, const char * path) {
+// Retrieves the sorted CSV of all CSVs sorted with <id>. Saves
+// the file to "<path>/AllFiles-sorted-<columnHeader>.csv".
+void retrieveAndSaveCsv(uint32_t id, const char * path, const char * columnHeader) {
     
     uint32_t netId = htonl(id);
     uint32_t netSize;
@@ -120,12 +125,18 @@ void retrieveAndSaveCsv(uint32_t id, const char * path) {
     
     if (size > 0)  {
         
-        FILE * csv = fopen(path, "w");
+        char filePath[strlen(path) + strlen(columnHeader) + 22];
+        sprintf(filePath, "%s/AllFiles-sorted-%s.csv", path, columnHeader);
+        
+        FILE * csv = fopen(filePath, "w");
         char temp[TEMPSIZE];
+        
         while (size > 0) {
+            
             size -= strlen(fgets(temp, TEMPSIZE, server));
             fprintf(csv, "%s", temp);
         }
+        
         fclose(csv);
     }
     

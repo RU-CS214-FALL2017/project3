@@ -2,15 +2,16 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <semaphore.h>
-#include <fcntl.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
+//#include <fcntl.h>
+//#include <stdint.h>
+//#include <unistd.h>
+//#include <sys/types.h>
+//#include <sys/socket.h>
 
 #include "clientTools.h"
 #include "syncWraps.h"
 
+// Node for the linked list of sockets in the queue.
 struct SocketQueueNode {
     
     FILE * socket;
@@ -44,11 +45,11 @@ FILE * getSocket() {
 // Inserts <socket> at the end of the queue.
 // Thread safe.
 void returnSocket(FILE * socket) {
-    printf("trying to return socket");fflush(stdout);
+    
     struct SocketQueueNode * newNode = malloc(sizeof(struct SocketQueueNode));
     newNode->socket = socket;
-    printf("trying to lock");fflush(stdout);
-    mutexLock(&SocketQueueLock, "SocketQueueLock");printf("locked");fflush(stdout);
+    
+    mutexLock(&SocketQueueLock, "SocketQueueLock");
     
     int elements = semGetValue(&SocketQueueSemaphore, "SocketQueueSemaphore");
     
@@ -58,9 +59,9 @@ void returnSocket(FILE * socket) {
         Tail->next = newNode;
     }
     Tail = newNode;
-    printf("trying to sempost");fflush(stdout);
-    mutexUnlock(&SocketQueueLock, "SocketQueueLock");printf("returned");fflush(stdout);
-    semPost(&SocketQueueSemaphore, "SocketQueueSemaphore");printf("semposted");fflush(stdout);
+    
+    mutexUnlock(&SocketQueueLock, "SocketQueueLock");
+    semPost(&SocketQueueSemaphore, "SocketQueueSemaphore");
 }
 
 // Initializes a pool of <num> sockets that are
@@ -77,7 +78,8 @@ void initializeSockets(const char * hostname, const char * port, unsigned int nu
     }
 }
 
-// Closes all the sockets in the pool.
+// Closes all the sockets in the pool, and signals the server
+// todo the same.
 void closeSockets() {
     
     for (int i = 0; i < TotalSockets; i++) {

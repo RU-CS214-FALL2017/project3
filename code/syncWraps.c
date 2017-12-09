@@ -3,6 +3,9 @@
 #include <pthread.h>
 #include <stdlib.h>
 
+// All these functions are wrappers that
+// print and exit on errors.
+
 void mutexInit(pthread_mutex_t * m, const char * name) {
     
     if (pthread_mutex_init(m, NULL) != 0) {

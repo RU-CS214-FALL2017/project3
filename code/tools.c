@@ -9,6 +9,8 @@
 
 #include "tools.h"
 
+// Prints appropriate message for <code> returned from
+// a sort request.
 void csvCodePrint(char code, const char * path) {
     
     switch (code) {
@@ -31,78 +33,16 @@ void csvCodePrint(char code, const char * path) {
     }
 }
 
-// <row> is the address to a char **. Creates a array of strings
-// A, where each comma seperated value from <line> is an element
-// of A, and <row>'s refrence is set to point to A. Returns the
-// number elements in A (columns). To free, free each (*<row>)[i]
-// (0 <= i < # of elements in A) and free *<row>.
-unsigned int tokenizeRow(const char * line, char * ** row) {
+// Removes the characters from <str> between indexes <startIndex> (inclusive)
+// and <endIndex> (exclusive).
+void removeChars (char * str, unsigned long startIndex, unsigned long endIndex) {
     
-    if (row != NULL) {
-         *row = (char **) malloc(strlen(line) * sizeof(char *));
-    }
+    unsigned long terminatingIndex = strlen(str);
     
-    char tempChar = '\0';
-    char tempCell[TEMPSIZE];
-    int i = 0; // number of columns
-    int j = 0; // number of characters in column field
-    int inQuote = 0;
-    int outQuote = 0;
-    
-    for(int l = 0; l <= strlen(line); l ++) {
+    for(int i = 0; i <= (terminatingIndex - endIndex); i++) {
         
-        tempChar = line[l];
-        
-        if ((tempChar == ',' || tempChar == '\0') && !inQuote){
-            
-            tempCell[j] = '\0';
-            trim(tempCell);
-            if (row != NULL) {
-                (*row)[i] = (char *) malloc(strlen(tempCell) + 1);
-                strcpy((*row)[i], tempCell);
-            }
-            
-            j = 0;
-            i += 1;
-            
-            outQuote = 0;
-            
-        } else if (tempChar == '"' && inQuote) {
-            inQuote = 0;
-            
-        } else if (tempChar == '"' && !outQuote && !inQuote) {
-            inQuote = 1;
-            
-        } else {
-            
-            tempCell[j] = tempChar;
-            j += 1;
-            if(tempChar != ' '){
-                outQuote = 1;
-            }
-        }
+        str[startIndex + i] = str[endIndex + i];
     }
-    
-    *row = (char **) realloc(*row, i * sizeof(char *));
-    
-    return i;
-}
-
-// Returns 1 if both tables have the same headers, else 0.
-int sameHeaders(struct Table * table1, struct Table * table2) {
-
-    if (table1->columns != table2->columns) {
-        return 0;
-    }
-    
-    for (int i = 0; i < table1->columns; i++) {
-        
-        if (strcmp((table1->table)[0][i], (table2->table)[0][i]) != 0) {
-            return 0;
-        }
-    }
-    
-    return 1;
 }
 
 // Removes leading and trailing whitespaces from <str>.
@@ -128,19 +68,80 @@ void trim (char * str) {
     removeChars(str, j + 1, terminatingIndex);
 }
 
-// Removes the characters from <str> between indexes <startIndex> (inclusive)
-// and <endIndex> (exclusive).
-void removeChars (char * str, unsigned long startIndex, unsigned long endIndex) {
+// Parses <line>, a row from a CSV file, creates a 2D string
+// array and has *<row> point to it.
+unsigned int tokenizeRow(const char * line, char * ** row) {
     
-    unsigned long terminatingIndex = strlen(str);
-    
-    for(int i = 0; i <= (terminatingIndex - endIndex); i++) {
-        
-        str[startIndex + i] = str[endIndex + i];
+    if (row != NULL) {
+         *row = malloc(strlen(line) * sizeof(char *));
     }
+    
+    char tempChar = '\0';
+    char tempCell[TEMPSIZE];
+    int i = 0; // number of columns
+    int j = 0; // number of characters in column field
+    int inQuote = 0;
+    int outQuote = 0;
+    
+    for(int l = 0; l <= strlen(line); l ++) {
+        
+        tempChar = line[l];
+        
+        if ((tempChar == ',' || tempChar == '\0') && !inQuote){
+            
+            tempCell[j] = '\0';
+            trim(tempCell);
+            if (row != NULL) {
+                (*row)[i] = malloc(strlen(tempCell) + 1);
+                strcpy((*row)[i], tempCell);
+            }
+            
+            j = 0;
+            i += 1;
+            
+            outQuote = 0;
+            
+        } else if (tempChar == '"' && inQuote) {
+            inQuote = 0;
+            
+        } else if (tempChar == '"' && !outQuote && !inQuote) {
+            inQuote = 1;
+            
+        } else {
+            
+            tempCell[j] = tempChar;
+            j += 1;
+            if(tempChar != ' '){
+                outQuote = 1;
+            }
+        }
+    }
+    
+    *row = realloc(*row, i * sizeof(char *));
+    
+    return i;
 }
 
-// Frees a table.
+// Returns 1 if both tables have the same headers, else 0.
+int sameHeaders(struct Table * table1, struct Table * table2) {
+
+    if (table1->columns != table2->columns) {
+        return 0;
+    }
+    
+    for (int i = 0; i < table1->columns; i++) {
+        
+        if (strcmp((table1->table)[0][i], (table2->table)[0][i]) != 0) {
+            return 0;
+        }
+    }
+    
+    return 1;
+}
+
+
+
+// Frees <table>.
 void freeTable(struct Table * table) {
     
     for (int i = 0; i < table->rows; i++) {
@@ -153,9 +154,10 @@ void freeTable(struct Table * table) {
     }
     
     free(table->table);
+    free(table);
 }
 
-// Frees a row.
+// Frees a row form <table> at the row's <index>.
 void freeRow(struct Table * table, unsigned int index) {
     
     for (int i = 0; i < table->columns; i++) {
@@ -165,19 +167,12 @@ void freeRow(struct Table * table, unsigned int index) {
     free((table->table)[index]);
 }
 
-// <table> is an address to a char ***. <rows> is an address to
-// an unsigned int. <columns> is an address to an unsigned int.
-// Creates a "table" from <csvFile> as a 2D string array, where
-// A[n][m] will return a string representation of the data stored
-// in the (n+1)th row and (m+1)th column of the "table". <table>'s
-// refrence is set to point to the created "table". <rows>' refrence
-// is set to the numbers of rows in "table". <columns>' refrence is
-// set to the number of columns in "table". To free, free each
-// (*<table>)[i][j] (0 <= i < *<rows>, 0 <= j < *<columns>) and free
-// *<table>.
+// Fills *<table>.table with data from <stream> of <size> bytes.
+// Sets *<tabe>'s rows and columns. Skips rows that don't have
+// the same number of columns as the header.
 void fillTable(FILE * stream, uint32_t size, struct Table * table) {
     
-    table->table = (char ***) malloc(TEMPSIZE * TEMPSIZE * sizeof(char **));
+    table->table = malloc(TEMPSIZE * TEMPSIZE * sizeof(char **));
     char line[TEMPSIZE];
     table->rows = 0;
     table->columns = 0;
@@ -204,11 +199,10 @@ void fillTable(FILE * stream, uint32_t size, struct Table * table) {
         
     } while (size > 0);
     
-    table->table = (char ***) realloc(table->table, sizeof(char **) * table->rows);
+    table->table = realloc(table->table, sizeof(char **) * table->rows);
 }
 
-// Prints <table> with <rows> rows and <columns> columns in a
-// csv (comma seperated values) format to <stream>.
+// Prints <table> in a CSV format to <stream>.
 void printTable (FILE * stream, struct Table * table) {
     
     for (int i = 0; i < table->rows; i++) {
@@ -234,7 +228,8 @@ void printTable (FILE * stream, struct Table * table) {
     }
 }
 
-// Returns the size in bytes of <table> if it were printed.
+// Returns the size in bytes of <table> if it were printed
+// as a CSV.
 uint32_t printedSizeOfTable(struct Table * table) {
     
     uint32_t size = 0;
@@ -284,9 +279,9 @@ int isNumber(const char * str) {
 // If <areNumbers> is set to 0, returns 0 if <y> is lexicographically before <x>,
 // else returns 1. If <areNumbers> is set to anything besides 0, converts <x> and
 // <y> to double values x y respectively, and returns x <= y.
-int isXBeforeY (const char * x, const char * y, int areNumbers) {
+int isXBeforeY (const char * x, const char * y, int isNumeric) {
     
-    if (areNumbers) {
+    if (isNumeric) {
         return atof(x) <= atof(y);
         
     } else {
@@ -308,7 +303,7 @@ int isNumericColumn(struct Table * table, int columnIndex) {
     return 1;
 }
 
-// Returns 1 if <csvPath> is a path to a "proper" .csv file, else returns 0.
+// Returns 1 if <csvPath> ends in ".csv", else returns 0.
 int isCsv(const char * csvPath) {
     
     const char * extension = csvPath + strlen(csvPath) - 4;
@@ -318,31 +313,6 @@ int isCsv(const char * csvPath) {
     }
     
     return 0;
-}
-
-// If the name of the CSV file located at <path> is A. This function returns
-// the newly allocated string: "<outputDir>/A-sorted-<columnHeader>.csv". To
-// free, free the returned pointer.
-char * sortedCsvPath(const char * csvPath, const char * columnHeader, const char * outputDir) {
-    
-    char temp[strlen(csvPath) + 1];
-    strcpy(temp, csvPath);
-    
-    char * token = strtok(temp, "/");
-    char * tempTok = NULL;
-    
-    while (token != NULL) {
-        
-        tempTok = token;
-        token = strtok(NULL, "/");
-    }
-    
-    tempTok[strlen(tempTok) - 4] = '\0';
-    
-    char * ret = (char * ) malloc(strlen(outputDir) + strlen(tempTok) + strlen(columnHeader) + 14);
-    sprintf(ret, "%s/%s-sorted-%s.csv", outputDir, tempTok, columnHeader);
-    
-    return ret;
 }
 
 // Returns the index of <columnHeader> in <table> with <columns>
@@ -358,5 +328,3 @@ int getColumnHeaderIndex(const char * columnHeader, struct Table * table) {
     
     return -1;
 }
-
-

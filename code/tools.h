@@ -5,13 +5,16 @@
 #include <sys/types.h>
 #include <stdint.h>
 
+// A temporary size.
 #define TEMPSIZE 4098
 
+// Codes sent from the server or sort request.
 #define SUCCESS 0
 #define COLUMN_HEADER_NOT_FOUND 1
 #define ID_NOT_FOUND 2
 #define TABLE_INCOMPATIBLE 3
 
+// Represents a table.
 struct Table {
     
     char *** table;
@@ -22,22 +25,13 @@ struct Table {
 void csvCodePrint(char code, const char * path);
 unsigned int tokenizeRow(const char * line, char * ** row);
 int sameHeaders(struct Table * table1, struct Table * table2);
-void trim (char * str);
-void removeChars (char * str, unsigned long startIndex, unsigned long endIndex);
 void freeTable(struct Table * table);
 void fillTable(FILE * stream, uint32_t size, struct Table * table);
 void printTable (FILE * stream, struct Table * table);
 uint32_t printedSizeOfTable(struct Table * table);
-int isNumber(const char * str);
-int isXBeforeY (const char * x, const char * y, int areNumbers);
+int isXBeforeY (const char * x, const char * y, int isNumeric);
 int isNumericColumn(struct Table * table, int columnIndex);
-int findCsvFiles(const char * dirPath, char * ** csvPaths, int * numFound);
 int isCsv(const char * csvPath);
-unsigned int lineageParser(const char * path, char * ** lineage);
-char * sortedCsvPath(const char * csvPath, const char * columnHeader, const char * outputDir);
 int getColumnHeaderIndex(const char * columnHeader, struct Table * table);
-//void printDirTree(FILE * output, struct sharedMem * sharedMem);
-//unsigned int dirSubProcessCount(pid_t dirPid, struct sharedMem * sharedMem);
-//void checkDir(const char * path, const char * dirType);
 
 #endif /* tools_h */
