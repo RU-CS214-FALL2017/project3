@@ -3,8 +3,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <unistd.h>
-
+//#include <unistd.h>
+//
 #include "tools.h"
 #include "dirTools.h"
 #include "clientTools.h"

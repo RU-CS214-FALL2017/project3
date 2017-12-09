@@ -1,19 +1,20 @@
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <strings.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <sys/stat.h>
-#include <pthread.h>
-#include <string.h>
+//#include <sys/types.h>
+//#include <sys/socket.h>
+//#include <netdb.h>
+//#include <strings.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <unistd.h>
+//#include <arpa/inet.h>
+//#include <sys/stat.h>
+//#include <pthread.h>
+//#include <string.h>
+#include <inttypes.h>
 
 #include "mainTools.h"
 #include "clientTools.h"
 #include "socketPool.h"
-#include "tools.h"
+//#include "tools.h"
 #include "dirTools.h"
 
 int main(int argc, char ** argv) {
@@ -29,10 +30,11 @@ int main(int argc, char ** argv) {
     checkDir(outputDir, "output");
     
     initializeSockets(hostname, port, poolSize);
+    
     uint32_t id = requestId(header);
-    printf("id: %u\n", id);
     processCsvDir(inputDir, id);
-    retrieveAndSaveCsv(id, "sorted.csv");
+    retrieveAndSaveCsv(id, outputDir, header);
+    
     closeSockets();
 }
 
