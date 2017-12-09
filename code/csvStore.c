@@ -1,7 +1,7 @@
 #include <pthread.h>
 #include <stdlib.h>
-#include "syncWraps.h"
 
+#include "syncWraps.h"
 #include "tools.h"
 #include "sorter.h"
 

@@ -1,20 +1,8 @@
-//#include <sys/types.h>
-//#include <sys/socket.h>
-//#include <netdb.h>
-//#include <strings.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <unistd.h>
-//#include <arpa/inet.h>
-//#include <sys/stat.h>
-//#include <pthread.h>
-//#include <string.h>
 #include <inttypes.h>
 
 #include "mainTools.h"
 #include "clientTools.h"
 #include "socketPool.h"
-//#include "tools.h"
 #include "dirTools.h"
 
 int main(int argc, char ** argv) {

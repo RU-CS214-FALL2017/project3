@@ -1,11 +1,5 @@
 #include <string.h>
 #include <stdlib.h>
-#include <ctype.h>
-#include <dirent.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <pthread.h>
 
 #include "tools.h"
 

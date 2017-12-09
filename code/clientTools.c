@@ -1,17 +1,9 @@
-//#include <strings.h>
 #include <netdb.h>
-#include <stdio.h>
 #include <stdlib.h>
-//#include <pthread.h>
-//#include <unistd.h>
 #include <sys/stat.h>
-//#include <sys/types.h>
-//#include <sys/socket.h>
 #include <sys/sendfile.h>
 #include <string.h>
-//#include <fcntl.h>
-//#include <errno.h>
-//
+
 #include "tools.h"
 #include "socketPool.h"
 

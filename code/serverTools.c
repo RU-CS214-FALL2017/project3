@@ -1,14 +1,11 @@
 #include <strings.h>
-//#include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-//#include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-//#include <string.h>
+#include <string.h>
 
-//#include "serverTools.h"
 #include "tools.h"
 #include "sorter.h"
 #include "csvStore.h"

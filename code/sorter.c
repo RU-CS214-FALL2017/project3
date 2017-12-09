@@ -1,8 +1,6 @@
-//#include <string.h>
 #include <stdlib.h>
 
 #include "tools.h"
-//#include "sorter.h"
 #include "csvStore.h"
 
 // Merges sub rows from <table>, where subrows1 is from row at index <start>

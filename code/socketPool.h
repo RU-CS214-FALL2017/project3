@@ -1,6 +1,8 @@
 #ifndef socketPool_h
 #define socketPool_h
 
+#include <stdio.h>
+
 FILE * getSocket(void);
 void returnSocket(FILE * socket);
 void initializeSockets(const char * hostname, const char * port, unsigned int num);
