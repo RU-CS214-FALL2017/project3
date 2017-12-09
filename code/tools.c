@@ -5,10 +5,11 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include "tools.h"
 
-void code(char code) {
+void codek(char code) {
     
     switch (code) {
         case SUCCESS:
@@ -88,7 +89,7 @@ unsigned int tokenizeRow(const char * line, char * ** row) {
 
 // Returns 1 if both tables have the same headers, else 0.
 int sameHeaders(struct Table * table1, struct Table * table2) {
-    
+
     if (table1->columns != table2->columns) {
         return 0;
     }
@@ -357,98 +358,4 @@ int getColumnHeaderIndex(const char * columnHeader, struct Table * table) {
     return -1;
 }
 
-//void printDirTree(FILE * output, struct sharedMem * sharedMem) {
-//    printDirTreeHelper(output, getpid(), sharedMem, 0);
-//}
-//
-//void printDirTreeHelper(FILE * output, pid_t pid, struct sharedMem * sharedMem, unsigned int level) {
-//
-//    struct csvDir * dir = getDirSeg(sharedMem, pid);
-//
-//    char * begin = "| ";
-//    char * end = "|-";
-//
-//    for (int i = 0; i < level; i++){
-//        fprintf(output, "%s", begin);
-//    }
-//
-//    fprintf(output, "%s%d: Processed the directory %s\n", end, pid, dir->path);
-//
-//    for (int i = 0; i < dir->numCsvs; i++) {
-//
-//        for (int i = 0; i < (level + 1); i++){
-//            fprintf(output, "%s", begin);
-//        }
-//
-//        struct csv * csv = getCsvSeg(sharedMem, dir->csvPids[i]);
-//
-//        if(csv->sorted) {
-//
-//            fprintf(output, "%s%d: Sorted the file %s", end, (dir->csvPids)[i], csv->path);
-//
-//            if (csv->error) {
-//                fprintf(output, " (%s)", csv->errors);
-//            }
-//
-//            fprintf(output, "\n");
-//
-//        } else {
-//
-//            fprintf(output, "%s%d: Tried to sort the file %s (%s)\n", end, (dir->csvPids)[i], csv->path, csv->errors);
-//        }
-//    }
-//
-//    for (int i = 0; i < dir->numSubDirs; i++) {
-//        printDirTreeHelper(output, (dir->subDirsPids)[i], sharedMem, level + 1);
-//    }
-//}
-
-//unsigned int dirSubProcessCount(pid_t dirPid, struct sharedMem * sharedMem) {
-//    
-//    struct csvDir * dir = getDirSeg(sharedMem, dirPid);
-//    
-//    unsigned int count = 1 + dir->numCsvs;
-//    
-//    for (int i = 0; i < dir->numSubDirs; i++) {
-//        count += dirSubProcessCount((dir->subDirsPids)[i], sharedMem);
-//    }
-//    
-//    return count;
-//}
-
-// Checks weather <path> is a valid directory, if not,
-// the program crashes with an approiate error message.
-void checkDir(const char * path, const char * dirType) {
-
-    DIR * dir = opendir(path);
-    
-    if (dir == NULL) {
-        
-        errno = 0;
-        
-        switch (errno) {
-                
-            case EACCES:
-                printf("You do not have access to the specified %s directory, %s\n", dirType, path);
-                break;
-                
-            case ENOENT:
-                printf("The specified %s directory, %s, does not exist\n", dirType, path);
-                break;
-                
-            case ENOTDIR:
-                printf("The specified %s directory, %s, is not a directory\n", dirType, path);
-                break;
-                
-            default:
-                printf("A problem occured opening the specified %s directory, %s", dirType, path);
-                break;
-        }
-        
-        closedir(dir);
-        exit(EXIT_FAILURE);
-    }
-    
-    closedir(dir);
-}
 

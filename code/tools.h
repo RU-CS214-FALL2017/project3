@@ -19,7 +19,7 @@ struct Table {
     unsigned int columns;
 };
 
-void code(char code);
+void codek(char code);
 unsigned int tokenizeRow(const char * line, char * ** row);
 int sameHeaders(struct Table * table1, struct Table * table2);
 void trim (char * str);
@@ -38,6 +38,6 @@ char * sortedCsvPath(const char * csvPath, const char * columnHeader, const char
 int getColumnHeaderIndex(const char * columnHeader, struct Table * table);
 //void printDirTree(FILE * output, struct sharedMem * sharedMem);
 //unsigned int dirSubProcessCount(pid_t dirPid, struct sharedMem * sharedMem);
-void checkDir(const char * path, const char * dirType);
+//void checkDir(const char * path, const char * dirType);
 
 #endif /* tools_h */

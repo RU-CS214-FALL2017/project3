@@ -22,8 +22,13 @@ int main(int argc, char ** argv) {
     initializeSockets(hostname, port, (unsigned int) atol(getPoolSize(argc, argv)));
 
     uint32_t id = requestId(header);
+    id = 2;
+    codek(sortCsv("movie_metadata.csv", id));
+    codek(sortCsv("movie_metadata.csv", id));
+    codek(sortCsv("movie_metadata.csv", id));
+    codek(sortCsv("bad.csv", id));
+    codek(sortCsv("movie_metadata.csv", id));
     
-    code(sortCsv("movie_metadata.csv", id));
     retrieveCsv(id, "sorted.csv");
     closeSockets();
 }

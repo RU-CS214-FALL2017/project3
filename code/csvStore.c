@@ -9,7 +9,6 @@ pthread_mutex_t ListMutex = PTHREAD_MUTEX_INITIALIZER;
 
 struct CsvsNode {
     
-//    pthread_mutex_t lock;
     uint32_t id;
     char * columnHeader;
     unsigned int sortIndex;
@@ -23,7 +22,7 @@ struct CsvsNode {
 void initializeId(uint32_t id, char * columnHeader) {
     
     struct CsvsNode * newNode = malloc(sizeof(struct CsvsNode));
-//    mutexInit(&(newNode->lock), "CsvsNodeLock");
+
     newNode->id = id;
     newNode->columnHeader = columnHeader;
     newNode->isNumericColumn = -1;
@@ -40,9 +39,9 @@ void initializeId(uint32_t id, char * columnHeader) {
 
 // Returns code.
 char checkHeaders(struct Table * table, uint32_t id) {
-    
+
     mutexLock(&ListMutex, "CsvsListLock");
-    
+
     for (struct CsvsNode * i = Head; i != NULL; i = Head->next) {
         
         if (i->id == id) {
@@ -52,7 +51,6 @@ char checkHeaders(struct Table * table, uint32_t id) {
                 i->sortIndex = getColumnHeaderIndex(i->columnHeader, table);
                 
                 if (i->sortIndex == -1) {
-
                     mutexUnlock(&ListMutex, "CsvsListLock");
                     return COLUMN_HEADER_NOT_FOUND;
                 }
@@ -60,7 +58,6 @@ char checkHeaders(struct Table * table, uint32_t id) {
                 i->isNumericColumn = isNumericColumn(table, i->sortIndex);
                 
             } else if (!sameHeaders(i->table, table)) {
-                
                 mutexUnlock(&ListMutex, "CsvsListLock");
                 return TABLE_INCOMPATIBLE;
             }
@@ -96,11 +93,12 @@ char addTable(struct Table * table, uint32_t id) {
         }
     }
     
+    mutexUnlock(&ListMutex, "CsvsListLock");
     return ID_NOT_FOUND;
 }
 
 // Dumps a table from the store. Returns NULL if
-// <id> not found.
+// <id> not found or empty table.
 struct Table * dumpTable(uint32_t id) {
     
     mutexLock(&ListMutex, "CsvsListLock");
@@ -122,7 +120,6 @@ struct Table * dumpTable(uint32_t id) {
     }
     
     mutexUnlock(&ListMutex, "CsvsListLock");
-    
     return NULL;
 }
 
@@ -135,8 +132,6 @@ char getInfo(uint32_t id, unsigned int * sortIndex, int * isNumeric) {
         
         if (i->id == id) {
             
-            printf("getinfo sortIndex: %u\n", i->sortIndex);
-            printf("getinfo isNumericColumn: %d\n", i->isNumericColumn);
             *sortIndex = i->sortIndex;
             *isNumeric = i->isNumericColumn;
             
@@ -146,6 +141,5 @@ char getInfo(uint32_t id, unsigned int * sortIndex, int * isNumeric) {
     }
     
     mutexUnlock(&ListMutex, "CsvsListLock");
-    
     return ID_NOT_FOUND;
 }

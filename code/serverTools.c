@@ -54,13 +54,13 @@ void handleSort(FILE * client, const char * ip) {
     fread(net, 4, 2, client);
     uint32_t id = ntohl(net[0]);
     uint32_t csvSize = ntohl(net[1]);
-
+    
     struct Table * table = malloc(sizeof(struct Table));
     fillTable(client, csvSize, table);
     char code = sortAndStore(id, table);
+    codek(code);
     
     fwrite(&code, 1, 1, client);
-    
     handleRequest(client, ip);
 }
 
@@ -72,11 +72,19 @@ void handleRetr(FILE * client, const char * ip) {
     uint32_t id = ntohl(netId);
     
     struct Table * table = dumpTable(id);
-    uint32_t size = printedSizeOfTable(table);
+    uint32_t size;
+    if (table == NULL) {
+        size = 0;
+    } else {
+        size = printedSizeOfTable(table);
+    }
+    
     uint32_t netSize = htonl(size);
     
     fwrite(&netSize, 4, 1, client);
-    printTable(client, table);
+    if (table != NULL) {
+        printTable(client, table);
+    }
     
     handleRequest(client, ip);
 }
@@ -84,8 +92,8 @@ void handleRetr(FILE * client, const char * ip) {
 // Handles a done request.
 void handleDone(FILE * client, const char * ip) {
     
-    printf("closing connection\n");
     fclose(client);
+    printf("%s (closed), ", ip);
 }
 
 // Handles a WACK request
@@ -125,7 +133,8 @@ void acceptConnection(int connection, struct sockaddr_in * addr, socklen_t addrL
         fprintf(stderr, "Error opening file descriptor of socket from %s\n", ip);
         pthread_exit(NULL);
     }
-    printf("accepted connection\n");
+    
+    printf("%s (opened), ", ip);
     handleRequest(client, ip);
 }
 

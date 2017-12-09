@@ -81,7 +81,7 @@ char sortCsv(const char * path, uint32_t id) {
     uint32_t size = (uint32_t) fileInfo.st_size;
     net[0] = htonl(id);
     net[1] = htonl(size);
-    
+
     FILE * csv = fopen(path, "r");
     char sorted;
     
@@ -104,8 +104,6 @@ void retrieveCsv(uint32_t id, const char * path) {
     uint32_t netId = htonl(id);
     uint32_t netSize;
     
-//    int csv = open(path, O_WRONLY);
-    FILE * csv = fopen(path, "w");
     FILE * server = getSocket();
     
     fwrite("retr", 4, 1, server);
@@ -114,12 +112,16 @@ void retrieveCsv(uint32_t id, const char * path) {
     fread(&netSize, 4, 1, server);
     uint32_t size = ntohl(netSize);
     
-    char temp[TEMPSIZE];
-    while (size > 0) {
-        size -= strlen(fgets(temp, TEMPSIZE, server));
-        fprintf(csv, "%s", temp);
+    if (size > 0)  {
+        
+        FILE * csv = fopen(path, "w");
+        char temp[TEMPSIZE];
+        while (size > 0) {
+            size -= strlen(fgets(temp, TEMPSIZE, server));
+            fprintf(csv, "%s", temp);
+        }
+        fclose(csv);
     }
     
-    fclose(csv);
     returnSocket(server);
 }
