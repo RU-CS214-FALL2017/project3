@@ -37,6 +37,7 @@ void initializeId(uint32_t id, char * columnHeader) {
     mutexUnlock(&ListMutex, "CsvsListLock");
 }
 
+// Checks <table>'s headers against the table stored with <id>.
 // Returns code.
 char checkHeaders(struct Table * table, uint32_t id) {
 
@@ -71,8 +72,7 @@ char checkHeaders(struct Table * table, uint32_t id) {
     return ID_NOT_FOUND;
 }
 
-// Adds a table to the store. Returns 0 if <id> found,
-// else returns error code.
+// Adds a table to the store. Returns error code if <id> found.
 char addTable(struct Table * table, uint32_t id) {
     
     mutexLock(&ListMutex, "CsvsListLock");
@@ -97,8 +97,8 @@ char addTable(struct Table * table, uint32_t id) {
     return ID_NOT_FOUND;
 }
 
-// Dumps a table from the store. Returns NULL if
-// <id> not found or empty table.
+// Removes and returns a table from the store with <id>.
+// Returns NULL if <id> not found or empty table.
 struct Table * dumpTable(uint32_t id) {
     
     mutexLock(&ListMutex, "CsvsListLock");
@@ -111,6 +111,7 @@ struct Table * dumpTable(uint32_t id) {
             
             temp->next = i->next;
             struct Table * ret = i->table;
+            free(i->columnHeader);
             free(i);
             mutexUnlock(&ListMutex, "CsvsListLock");
             return ret;
@@ -123,7 +124,8 @@ struct Table * dumpTable(uint32_t id) {
     return NULL;
 }
 
-// Returns 0 if <id> found, else returns error code.
+// Stores sortIndex and isNumeric of stored table at <id> in
+// *<sortIndex> and *<isNumeric>. Returns sort code.
 char getInfo(uint32_t id, unsigned int * sortIndex, int * isNumeric) {
     
     mutexLock(&ListMutex, "CsvsListLock");

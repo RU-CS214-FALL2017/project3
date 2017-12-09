@@ -1,17 +1,25 @@
 #include <strings.h>
-#include <netdb.h>
+//#include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <string.h>
+//#include <string.h>
 
-#include "serverTools.h"
+//#include "serverTools.h"
 #include "tools.h"
 #include "sorter.h"
 #include "csvStore.h"
+
+// Pthread params for handleRequest.
+struct handleRequestParams {
+    
+    int connection;
+    struct sockaddr_in addr;
+    socklen_t addrLen;
+};
 
 void handleRequest(FILE * client, const char * ip);
 
@@ -29,25 +37,24 @@ uint32_t getNewId() {
     return ret;
 }
 
-// Handles an init request.
+// Handles a WACK init request.
 void handleInit(FILE * client, const char * ip) {
     
     uint32_t netColumnHeaderLength;
     fread(&netColumnHeaderLength, 4, 1, client);
     uint32_t columnHeaderLength = ntohl(netColumnHeaderLength);
-    
     char * columnHeader = malloc(columnHeaderLength + 1);
     fgets(columnHeader, columnHeaderLength + 1, client);
-    printf("column header: %s\n", columnHeader);
+
     uint32_t id = getNewId();
     initializeId(id, columnHeader);
     uint32_t netId = htonl(id);
     fwrite(&netId, 4, 1, client);
-    printf("id: %u\n", id);
+
     handleRequest(client, ip);
 }
 
-// Handles sort request.
+// Handles a WACK sort request.
 void handleSort(FILE * client, const char * ip) {
     
     uint32_t net[2];
@@ -58,12 +65,12 @@ void handleSort(FILE * client, const char * ip) {
     struct Table * table = malloc(sizeof(struct Table));
     fillTable(client, csvSize, table);
     char code = sortAndStore(id, table);
-    
     fwrite(&code, 1, 1, client);
+    
     handleRequest(client, ip);
 }
 
-// Handles a retr request.
+// Handles a WACK retr request.
 void handleRetr(FILE * client, const char * ip) {
     
     uint32_t netId;
@@ -83,12 +90,13 @@ void handleRetr(FILE * client, const char * ip) {
     fwrite(&netSize, 4, 1, client);
     if (table != NULL) {
         printTable(client, table);
+        freeTable(table);
     }
     
     handleRequest(client, ip);
 }
 
-// Handles a done request.
+// Handles a WACK done request.
 void handleDone(FILE * client, const char * ip) {
     
     fclose(client);
@@ -116,8 +124,8 @@ void handleRequest(FILE * client, const char * ip) {
         handleDone(client, ip);
         
     } else {
-        fprintf(stderr, "Bad request from: %s\n", ip);
         fclose(client);
+        fprintf(stderr, "%s (closed - bad request), ", ip);
     }
 }
 
@@ -137,7 +145,7 @@ void acceptConnection(int connection, struct sockaddr_in * addr, socklen_t addrL
     handleRequest(client, ip);
 }
 
-// Thread helper function for handleRequest.
+// Pthread helper function for acceptConnection.
 void * acceptConnectionHelper(void * parameters) {
     
     struct handleRequestParams * params = parameters;
@@ -146,7 +154,7 @@ void * acceptConnectionHelper(void * parameters) {
     pthread_exit(NULL);
 }
 
-// Starts a sort server on <port>.
+// Starts a WACK server on <port>.
 void startServer(const char * port) {
     
     struct sockaddr_in serverAddr;

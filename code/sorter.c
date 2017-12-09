@@ -1,8 +1,8 @@
-#include <string.h>
+//#include <string.h>
 #include <stdlib.h>
 
 #include "tools.h"
-#include "sorter.h"
+//#include "sorter.h"
 #include "csvStore.h"
 
 // Merges sub rows from <table>, where subrows1 is from row at index <start>
@@ -75,9 +75,8 @@ void mergeSort(char *** table, unsigned int columnIndex, int areNumbers,
     }
 }
 
-// Ascendingly sorts <table> with <rows> rows and <columns> columns according to
-// the column with the header <columnHeader>. Returns 1 if <columnHeader>
-// was found, else returns 0.
+// Sort <table> according to <id> and stores on success.
+// Returns sort code.
 char sortAndStore(uint32_t id, struct Table * table) {
     
     char code = checkHeaders(table, id);
@@ -95,7 +94,8 @@ char sortAndStore(uint32_t id, struct Table * table) {
     return SUCCESS;
 }
 
-// Merges <table1> and <table2>. The input tables must be pre-sorted.
+// Merges <table1> and <table2> on <sortIndex>.
+// The input tables must be pre-sorted.
 // Returns a new, sorted, merged table.
 struct Table * mergeTables(struct Table * table1, struct Table * table2, unsigned int sortIndex, int isNumeric) {
     
