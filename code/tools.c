@@ -133,32 +133,25 @@ int sameHeaders(struct Table * table1, struct Table * table2) {
     return 1;
 }
 
-
-
-// Frees <table>.
-void freeTable(struct Table * table) {
-    
-    for (int i = 0; i < table->rows; i++) {
-        
-        for (int j = 0; i < table->columns; j++) {
-            free((table->table)[i][j]);
-        }
-        
-        free((table->table)[i]);
-    }
-    
-    free(table->table);
-    free(table);
-}
-
 // Frees a row form <table> at the row's <index>.
 void freeRow(struct Table * table, unsigned int index) {
     
-    for (int i = 0; i < table->columns; i++) {
+    for (unsigned int i = 0; i < table->columns; i++) {
         free((table->table)[index][i]);
     }
     
     free((table->table)[index]);
+}
+
+// Frees <table>.
+void freeTable(struct Table * table) {
+    
+    for (unsigned int i = 0; i < table->rows; i++) {
+        freeRow(table, i);
+    }
+    
+    free(table->table);
+    free(table);
 }
 
 // Fills *<table>.table with data from <stream> of <size> bytes.

@@ -57,7 +57,7 @@ void handleSort(FILE * client, const char * ip) {
     uint32_t net[2];
     fread(net, 4, 2, client);
     uint32_t id = ntohl(net[0]);
-    uint32_t csvSize = ntohl(net[1]);printf("size: %u\n", csvSize);
+    uint32_t csvSize = ntohl(net[1]);
     
     struct Table * table = malloc(sizeof(struct Table));
     fillTable(client, csvSize, table);
@@ -98,6 +98,7 @@ void handleDone(FILE * client, const char * ip) {
     
     fclose(client);
     printf("%s (closed), ", ip);
+    fflush(stdout);
 }
 
 // Handles a WACK request
@@ -105,8 +106,6 @@ void handleRequest(FILE * client, const char * ip) {
    
     char requestType[5];
     fgets(requestType, 5, client);
-    
-    printf("requestType %s\n", requestType);
     
     if (strcmp("init", requestType) == 0) {
         handleInit(client, ip);
@@ -123,6 +122,7 @@ void handleRequest(FILE * client, const char * ip) {
     } else {
         fclose(client);
         fprintf(stderr, "%s (closed - bad request), ", ip);
+        fflush(stdout);
     }
 }
 
@@ -139,6 +139,7 @@ void acceptConnection(int connection, struct sockaddr_in * addr, socklen_t addrL
     }
     
     printf("%s (opened), ", ip);
+    fflush(stdout);
     handleRequest(client, ip);
 }
 

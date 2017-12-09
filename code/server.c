@@ -7,5 +7,6 @@ int main(int argc, char ** argv) {
     
     char * port = getPort(argc, argv);
     printf("Connections: ");
+    fflush(stdout);
     startServer(port);
 }
