@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/stat.h>
+#include <pthread.h>
+#include <string.h>
 
 #include "mainTools.h"
 #include "clientTools.h"
@@ -28,9 +30,9 @@ int main(int argc, char ** argv) {
     
     initializeSockets(hostname, port, poolSize);
     uint32_t id = requestId(header);
-    
+    printf("id: %u\n", id);
     processCsvDir(inputDir, id);
-    
     retrieveAndSaveCsv(id, "sorted.csv");
     closeSockets();
 }
+

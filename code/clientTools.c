@@ -75,6 +75,12 @@ uint32_t requestId(const char * columnHeader) {
 // Sends CSV file to the server.
 void sortCsv(const char * path, uint32_t id) {
     
+    if (!isCsv(path)) {
+        
+        fprintf(stderr, "Not a CSV: %s\n", path);
+        return;
+    }
+    
     struct stat fileInfo;
     stat(path, &fileInfo);
     uint32_t net[2];
@@ -86,16 +92,16 @@ void sortCsv(const char * path, uint32_t id) {
     char sorted;
     
     FILE * server = getSocket();
-    
+    printf("got server\n");fflush(stdout);printf("size: %u\n", size);
     fwrite("sort", 4, 1, server);
     fwrite(&net, 4, 2, server);
     fflush(server);
     sendfile(fileno(server), fileno(csv), NULL, size);
-    
+    printf("file sent\n");
     fread(&sorted, 1, 1, server);
-
+csvCodePrint(sorted, path);
     returnSocket(server);
-    
+    fclose(csv);
     csvCodePrint(sorted, path);
 }
 

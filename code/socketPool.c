@@ -27,8 +27,8 @@ unsigned int TotalSockets;
 // removes it. Thread safe.
 FILE * getSocket() {
     
-    mutexLock(&SocketQueueLock, "SocketQueueLock");
     semWait(&SocketQueueSemaphore, "SocketQueueSemaphore");
+    mutexLock(&SocketQueueLock, "SocketQueueLock");
     
     struct SocketQueueNode * oldHead = Head;
     Head = oldHead->next;
@@ -44,11 +44,11 @@ FILE * getSocket() {
 // Inserts <socket> at the end of the queue.
 // Thread safe.
 void returnSocket(FILE * socket) {
-    
+    printf("trying to return socket");fflush(stdout);
     struct SocketQueueNode * newNode = malloc(sizeof(struct SocketQueueNode));
     newNode->socket = socket;
-    
-    mutexLock(&SocketQueueLock, "SocketQueueLock");
+    printf("trying to lock");fflush(stdout);
+    mutexLock(&SocketQueueLock, "SocketQueueLock");printf("locked");fflush(stdout);
     
     int elements = semGetValue(&SocketQueueSemaphore, "SocketQueueSemaphore");
     
@@ -58,9 +58,9 @@ void returnSocket(FILE * socket) {
         Tail->next = newNode;
     }
     Tail = newNode;
-    
-    semPost(&SocketQueueSemaphore, "SocketQueueSemaphore");
-    mutexUnlock(&SocketQueueLock, "SocketQueueLock");
+    printf("trying to sempost");fflush(stdout);
+    mutexUnlock(&SocketQueueLock, "SocketQueueLock");printf("returned");fflush(stdout);
+    semPost(&SocketQueueSemaphore, "SocketQueueSemaphore");printf("semposted");fflush(stdout);
 }
 
 // Initializes a pool of <num> sockets that are

@@ -38,12 +38,12 @@ void handleInit(FILE * client, const char * ip) {
     
     char * columnHeader = malloc(columnHeaderLength + 1);
     fgets(columnHeader, columnHeaderLength + 1, client);
-    
+    printf("column header: %s\n", columnHeader);
     uint32_t id = getNewId();
     initializeId(id, columnHeader);
     uint32_t netId = htonl(id);
     fwrite(&netId, 4, 1, client);
-    
+    printf("id: %u\n", id);
     handleRequest(client, ip);
 }
 
@@ -53,12 +53,11 @@ void handleSort(FILE * client, const char * ip) {
     uint32_t net[2];
     fread(net, 4, 2, client);
     uint32_t id = ntohl(net[0]);
-    uint32_t csvSize = ntohl(net[1]);
+    uint32_t csvSize = ntohl(net[1]);printf("size: %u\n", csvSize);
     
     struct Table * table = malloc(sizeof(struct Table));
     fillTable(client, csvSize, table);
     char code = sortAndStore(id, table);
-    codek(code);
     
     fwrite(&code, 1, 1, client);
     handleRequest(client, ip);
