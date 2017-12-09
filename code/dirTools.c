@@ -28,7 +28,7 @@ void * processCsvDirHelper(void * parameters) {
 void * sortCsvHelper(void * parameters) {
     
     struct Params * params = parameters;
-    processCsvDir(params->path, params->id);
+    sortCsv(params->path, params->id);
     free(params->path);
     free(parameters);
     

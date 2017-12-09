@@ -9,23 +9,24 @@
 
 #include "tools.h"
 
-void codek(char code) {
+void csvCodePrint(char code, const char * path) {
     
     switch (code) {
+            
         case SUCCESS:
-            printf("Successfully Sorted\n");
+            printf("Successfully sorted: %s\n", path);
             break;
         case COLUMN_HEADER_NOT_FOUND:
-            fprintf(stderr, "Header not found\n");
+            fprintf(stderr, "Error sorting, header not found: %s\n", path);
             break;
         case ID_NOT_FOUND:
-            fprintf(stderr, "ID not found\n");
+            fprintf(stderr, "Error sorting, ID not found: %s\n", path);
             break;
         case TABLE_INCOMPATIBLE:
-            fprintf(stderr, "Table not compatible\n");
+            fprintf(stderr, "Error sorting, incompatible: %s\n", path);
             break;
         default:
-            fprintf(stderr, "Other bullshit\n");
+            fprintf(stderr, "Error sorting: %s\n", path);
             break;
     }
 }

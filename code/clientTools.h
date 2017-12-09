@@ -3,7 +3,7 @@
 
 FILE * connectToServer(const char * hostname, const char * port);
 uint32_t requestId(const char * columnHeader);
-char sortCsv(const char * path, uint32_t id);
-void retrieveCsv(uint32_t id, const char * path);
+void sortCsv(const char * path, uint32_t id);
+void retrieveAndSaveCsv(uint32_t id, const char * path);
 
 #endif /* clientTools_h */

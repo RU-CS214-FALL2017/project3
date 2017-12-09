@@ -12,23 +12,25 @@
 #include "clientTools.h"
 #include "socketPool.h"
 #include "tools.h"
+#include "dirTools.h"
 
 int main(int argc, char ** argv) {
     
     char * hostname = getHostname(argc, argv);
     char * port = getPort(argc, argv);
     char * header = getColumnHeader(argc, argv);
+    char * inputDir = getInputDirectory(argc, argv);
+    char * outputDir = getOutputDirectory(argc, argv);
+    unsigned int poolSize = getPoolSize(argc, argv);
     
-    initializeSockets(hostname, port, (unsigned int) atol(getPoolSize(argc, argv)));
-
+    checkDir(inputDir, "input");
+    checkDir(outputDir, "output");
+    
+    initializeSockets(hostname, port, poolSize);
     uint32_t id = requestId(header);
-    id = 2;
-    codek(sortCsv("movie_metadata.csv", id));
-    codek(sortCsv("movie_metadata.csv", id));
-    codek(sortCsv("movie_metadata.csv", id));
-    codek(sortCsv("bad.csv", id));
-    codek(sortCsv("movie_metadata.csv", id));
     
-    retrieveCsv(id, "sorted.csv");
+    processCsvDir(inputDir, id);
+    
+    retrieveAndSaveCsv(id, "sorted.csv");
     closeSockets();
 }

@@ -19,7 +19,7 @@ struct Table {
     unsigned int columns;
 };
 
-void codek(char code);
+void csvCodePrint(char code, const char * path);
 unsigned int tokenizeRow(const char * line, char * ** row);
 int sameHeaders(struct Table * table1, struct Table * table2);
 void trim (char * str);

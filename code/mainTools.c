@@ -94,15 +94,37 @@ char * getHostname(int argc, char ** argv) {
 
 // Returns the input directory if found in <argv>, else returns NULL.
 char * getInputDirectory(int argc, char ** argv) {
-    return getFlagValue("-d", argc, argv);
+    char * inputDir = getFlagValue("-d", argc, argv);
+    
+    if (inputDir == NULL) {
+        return ".";
+    }
+    
+    return inputDir;
 }
 
 // Returns the output directory if found in <argv>, else returns NULL.
 char * getOutputDirectory(int argc, char ** argv) {
-    return getFlagValue("-o", argc, argv);
+    
+    char * outputDir = getFlagValue("-o", argc, argv);
+    
+    if (outputDir == NULL) {
+        return ".";
+        
+    }
+    
+    return outputDir;
 }
 
-// Returns the pool size if found in <argv>, else returns NULL.
-char * getPoolSize(int argc, char ** argv) {
-    return getFlagValue("-s", argc, argv);
+// Returns the pool size.
+unsigned int getPoolSize(int argc, char ** argv) {
+    
+    char * poolSize = getFlagValue("-s", argc, argv);
+    
+    if (poolSize == NULL) {
+        return 1;
+        
+    }
+    
+    return (unsigned int) atol(poolSize);
 }

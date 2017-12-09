@@ -73,7 +73,7 @@ uint32_t requestId(const char * columnHeader) {
 }
 
 // Sends CSV file to the server.
-char sortCsv(const char * path, uint32_t id) {
+void sortCsv(const char * path, uint32_t id) {
     
     struct stat fileInfo;
     stat(path, &fileInfo);
@@ -96,10 +96,10 @@ char sortCsv(const char * path, uint32_t id) {
 
     returnSocket(server);
     
-    return sorted;
+    csvCodePrint(sorted, path);
 }
 
-void retrieveCsv(uint32_t id, const char * path) {
+void retrieveAndSaveCsv(uint32_t id, const char * path) {
     
     uint32_t netId = htonl(id);
     uint32_t netSize;
