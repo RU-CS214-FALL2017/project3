@@ -8,7 +8,7 @@
 // A temporary size.
 #define TEMPSIZE 4098
 
-// Codes sent from the server or sort request.
+// Codes sent from the server for sort request.
 #define SUCCESS 0
 #define COLUMN_HEADER_NOT_FOUND 1
 #define ID_NOT_FOUND 2
