@@ -2,7 +2,7 @@
 
 ## Assumptions
 
-* Rows of CSV files must be delimited by newline characters.
+Rows of CSV files must be delimited by newline characters.
 
 ## Server
 
@@ -100,7 +100,7 @@ Must consist of 4 bytes specifying the ID in network byte order.
 
 #### Request - Sort - WACK Protocol
 
-1. The first 4 bytes must be the ASCII representation of **sort**.
+1. The first 4 bytes must be the ASCII representation of *sort*.
 2. The next 4 bytes must specify the size in bytes of the remaining request in network byte order.
 3. The remaining request must be a CSV file.
 
@@ -112,7 +112,7 @@ Must consist of 1 byte, specifying the completion of the request.
 
 #### Request - Retrieve - WACK Protocol
 
-1. The first 4 bytes must be the ASCII representation of **retr**.
+1. The first 4 bytes must be the ASCII representation of *retr*.
 2. The next and final 4 bytes must specify an ID in network byte order.
 
 #### Response - Retrieve - WACK Protocol
@@ -124,4 +124,4 @@ Must consist of 1 byte, specifying the completion of the request.
 
 #### Request - Done - WACK Protocol
 
-Only 4 bytes that must be the ASCII representation of **done**.
+Only 4 bytes that must be the ASCII representation of *done*.
